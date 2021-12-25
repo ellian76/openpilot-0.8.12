@@ -84,13 +84,10 @@ class CarController():
     if not enabled or not CS.adaptive_Cruise or not CS.CP.enableGasInterceptor:
       comma_pedal = 0
     elif CS.adaptive_Cruise:
-      if CS.brakePressed:
-        comma_pedal = 0
-      else:
-        minimumPedalOutputBySpeed = interp(CS.out.vEgo, VEL, MIN_PEDAL)
-        pedal_accel = actuators.accel * accelMultiplier
-        comma_pedal = clip(pedal_accel, minimumPedalOutputBySpeed, 1.)
-        comma_pedal, self.accel_steady = accel_hysteresis(comma_pedal, self.accel_steady)
+      minimumPedalOutputBySpeed = interp(CS.out.vEgo, VEL, MIN_PEDAL)
+      pedal_accel = actuators.accel * accelMultiplier
+      comma_pedal = clip(pedal_accel, minimumPedalOutputBySpeed, 1.)
+      comma_pedal, self.accel_steady = accel_hysteresis(comma_pedal, self.accel_steady)
 
     if (frame % 4) == 0:
       idx = (frame // 4) % 4
