@@ -72,7 +72,7 @@ class CarController():
       can_sends.append(gmcan.create_steering_control(self.packer_pt, CanBus.POWERTRAIN, apply_steer, idx, lkas_enabled))
 
     # Pedal/Regen
-    comma_pedal =0  #for supress linter error.
+    comma_pedal = 0  #for supress linter error.
     accelMultiplier = 0.475 #default initializer.
     if CS.out.vEgo * CV.MS_TO_KPH < 10 :
       accelMultiplier = 0.375
@@ -81,47 +81,20 @@ class CarController():
     else : # above 40 km/h
       accelMultiplier = 0.425
 
-    if not enabled or not CS.adaptive_Cruise or not CS.CP.enableGasInterceptor or CS.brakePressed:
+    if not enabled or not CS.adaptive_Cruise or not CS.CP.enableGasInterceptor:
       comma_pedal = 0
-    elif CS.adaptive_Cruise and not CS.brakePressed:
-      minimumPedalOutputBySpeed = interp(CS.out.vEgo, VEL, MIN_PEDAL)
-      pedal_accel = actuators.accel * accelMultiplier
-      comma_pedal = clip(pedal_accel, minimumPedalOutputBySpeed, 1.)
-      comma_pedal, self.accel_steady = accel_hysteresis(comma_pedal, self.accel_steady)
+    elif CS.adaptive_Cruise:
+      if CS.brakePressed:
+        comma_pedal = 0
+      else:
+        minimumPedalOutputBySpeed = interp(CS.out.vEgo, VEL, MIN_PEDAL)
+        pedal_accel = actuators.accel * accelMultiplier
+        comma_pedal = clip(pedal_accel, minimumPedalOutputBySpeed, 1.)
+        comma_pedal, self.accel_steady = accel_hysteresis(comma_pedal, self.accel_steady)
 
     if (frame % 4) == 0:
       idx = (frame // 4) % 4
-
       can_sends.append(create_gas_interceptor_command(self.packer_pt, comma_pedal, idx))
-      
-      
-##페달에 accel, brake 개념 적용시      
-#    if CS.CP.enableGasInterceptor and (frame % 2) == 0:
-#      if not enabled or not CS.adaptive_Cruise:
-#        final_pedal = 0
-#      elif CS.adaptive_Cruise:
-#        min_pedal_speed = interp(CS.out.vEgo, VEL, MIN_PEDAL)
-#        pedal_accel = actuators.accel / 4
-#        pedal = clip(pedal_accel, min_pedal_speed, 1.)
-#        regen = - pedal_accel
-#        pedal, self.accel_steady = accel_hysteresis(pedal, self.accel_steady)
-#        final_pedal = clip(pedal - regen, 0., 1.)
-#        if regen > 0.1:
-#          can_sends.append(gmcan.create_regen_paddle_command(self.packer_pt, CanBus.POWERTRAIN))
-
-#        idx = (frame // 2) % 4
-#        can_sends.append(create_gas_command(self.packer_pt, final_pedal, idx))
-
-    # Send dashboard UI commands (ACC status), 25hz
-    #if (frame % 4) == 0:
-    #  send_fcw = hud_alert == VisualAlert.fcw
-    #  can_sends.append(gmcan.create_acc_dashboard_command(self.packer_pt, CanBus.POWERTRAIN, enabled, hud_v_cruise * CV.MS_TO_KPH, hud_show_car, send_fcw))
-
-    # Radar needs to know current speed and yaw rate (50hz) - Delete
-    # and that ADAS is alive (10hz)
-
-    #if frame % P.ADAS_KEEPALIVE_STEP == 0:
-    #  can_sends += gmcan.create_adas_keepalive(CanBus.POWERTRAIN)
 
     # Show green icon when LKA torque is applied, and
     # alarming orange icon when approaching torque limit.
