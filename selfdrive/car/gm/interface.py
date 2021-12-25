@@ -66,8 +66,8 @@ class CarInterface(CarInterfaceBase):
     ret.steerActuatorDelay = 0.1925  # def: 0.2 Default delay, not measured yet
 
     ret.minEnableSpeed = -1
-    ret.mass = 1625. + STD_CARGO_KG
-    ret.wheelbase = 2.60096
+    ret.mass = 1645. + STD_CARGO_KG  # 공차중량
+    ret.wheelbase = 2.725  # 축간거리 (mm)
     ret.steerRatio = 16.8
     ret.steerRatioRear = 0.
     ret.centerToFront = ret.wheelbase * 0.49 # wild guess
