@@ -162,11 +162,11 @@ class CarInterface(CarInterfaceBase):
     # belowsteerspeed alertevent는 내지 않도록 한다. 텍스트로 표시만 따로 하여 debug ui 출력을 확보한다.
     # if ret.vEgo < self.CP.minSteerSpeed:
     #   events.add(car.CarEvent.EventName.belowSteerSpeed)
-    if self.CP.enableGasInterceptor:
-      if self.CS.adaptive_Cruise and ret.brakePressed:
-        events.add(EventName.pedalPressed)
-        self.CS.adaptive_Cruise = False
-        self.CS.enable_lkas = False
+    #if self.CP.enableGasInterceptor:
+    #  if self.CS.adaptive_Cruise and ret.brakePressed:
+    #    events.add(EventName.pedalPressed)
+    #    self.CS.adaptive_Cruise = False
+    #    self.CS.enable_lkas = False
 
 
     # handle button presses
@@ -180,7 +180,7 @@ class CarInterface(CarInterfaceBase):
             break
           if (b.type == ButtonType.accelCruise and not b.pressed) and not self.CS.adaptive_Cruise:
             self.CS.adaptive_Cruise = True
-            self.CS.enable_lkas = False
+            self.CS.enable_lkas = True
             events.add(EventName.buttonEnable)
             break
           if (b.type == ButtonType.cancel and b.pressed) and self.CS.adaptive_Cruise:
@@ -189,7 +189,7 @@ class CarInterface(CarInterfaceBase):
             events.add(EventName.buttonCancel)
             break
           if (b.type == ButtonType.altButton3 and b.pressed) : #and self.CS.adaptive_Cruise
-            self.CS.adaptive_Cruise = False
+            self.CS.adaptive_Cruise = True
             self.CS.enable_lkas = True
             break
       else :#lat engage
