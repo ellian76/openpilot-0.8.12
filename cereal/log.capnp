@@ -559,6 +559,30 @@ struct ControlsState @0x97ff69c53601abf1 {
   curvature @37 :Float32;  # path curvature from vehicle model
   forceDecel @51 :Bool;
 
+  # Neokii NDA ADD (PSK)
+  applyMaxSpeed @60 :Float32;
+  cruiseMaxSpeed @61 :Float32;
+  roadLimitSpeedActive @62 :Int32;
+  roadLimitSpeed @63 :UInt32;
+  roadLimitSpeedLeftDist @64 :UInt32;
+
+  # Neokii ,,,,,
+  angleSteers @65 :Float32;
+  applyAccel @66 :Float32;
+  aReqValue @67 :Float32;
+  aReqValueMin @68 :Float32;
+  aReqValueMax @69 :Float32;
+
+  steerRatio @70 :Float32;
+  steerRateCost @71 :Float32;
+  steerActuatorDelay @72 :Float32;
+  sccGasFactor @73 :Float32;
+  sccBrakeFactor @74 :Float32;
+  sccCurvatureFactor @75 :Float32;
+  longitudinalActuatorDelayLowerBound @76 :Float32;
+  longitudinalActuatorDelayUpperBound @77 :Float32;
+
+
   # UI alerts
   alertText1 @24 :Text;
   alertText2 @25 :Text;
