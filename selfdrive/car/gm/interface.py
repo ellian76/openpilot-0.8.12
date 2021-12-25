@@ -184,8 +184,9 @@ class CarInterface(CarInterfaceBase):
               break
             if (b.type == ButtonType.cancel and b.pressed) and self.CS.adaptive_Cruise:
               self.CS.adaptive_Cruise = False
-              self.CS.enable_lkas = False
-              events.add(EventName.buttonCancel)
+              self.CS.enable_lkas = True
+              #events.add(EventName.buttonCancel)
+              events.add(EventName.buttonEnable)
               break
             if (b.type == ButtonType.altButton3 and b.pressed):  # and self.CS.adaptive_Cruise
               self.CS.adaptive_Cruise = False
@@ -206,7 +207,7 @@ class CarInterface(CarInterfaceBase):
           self.CS.enable_lkas = True
         else:
           self.CS.adaptive_Cruise = False
-          self.CS.enable_lkas = False
+          self.CS.enable_lkas = True
 
     #Added by jc01rho inspired by JangPoo
     if self.CS.main_on  and self.CS.enable_lkas and not self.CS.adaptive_Cruise and ret.cruiseState.enabled and ret.gearShifter == GearShifter.drive and ret.vEgo > 2.4 and not ret.brakePressed :
