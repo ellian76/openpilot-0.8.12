@@ -231,23 +231,23 @@ static void ui_draw_bottom_info(UIState *s) {
     //auto car_params = (*s->sm)["carParams"].getCarParams();
     //auto car_state = (*s->sm)["carState"].getCarState();
 
-    int longControlState = (int)controls_state.getLongControlState();
-    const char* long_state[] = {"Off", "Pid", "Stopping", "Starting"};
+    //int longControlState = (int)controls_state.getLongControlState();
+    //const char* long_state[] = {"Off", "Pid", "Stopping", "Starting"};
     int lateralControlState = controls_state.getLateralControlSelect();
     const char* lateral_state[] = {"Pid", "Indi", "Lqr"};
-    auto gps_ext = s->scene.gps_ext;
-    float verticalAccuracy = gps_ext.getVerticalAccuracy();
-    float gpsAltitude = gps_ext.getAltitude();
-    float gpsAccuracy = gps_ext.getAccuracy();
-    int gpsSatelliteCount = s->scene.satelliteCount;
+    //auto gps_ext = s->scene.gps_ext;
+    //float verticalAccuracy = gps_ext.getVerticalAccuracy();
+    //float gpsAltitude = gps_ext.getAltitude();
+    //float gpsAccuracy = gps_ext.getAccuracy();
+    //int gpsSatelliteCount = s->scene.satelliteCount;
 
-    if(verticalAccuracy == 0 || verticalAccuracy > 100)
-        gpsAltitude = 99.99;
+    //if(verticalAccuracy == 0 || verticalAccuracy > 100)
+    //    gpsAltitude = 99.99;
 
-    if (gpsAccuracy > 100)
-      gpsAccuracy = 99.99;
-    else if (gpsAccuracy == 0)
-      gpsAccuracy = 99.8;
+    //if (gpsAccuracy > 100)
+    //  gpsAccuracy = 99.99;
+    //else if (gpsAccuracy == 0)
+    //  gpsAccuracy = 99.8;
 
     snprintf(str, sizeof(str),
     "[ %s ] SR[%.2f]",
