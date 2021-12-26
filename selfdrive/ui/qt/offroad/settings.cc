@@ -484,7 +484,7 @@ QWidget * network_panel(QWidget * parent) {
   return w;
 }
 
-static QStringList get_list(const char* path)
+/*static QStringList get_list(const char* path)
 {
   QStringList stringList;
   QFile textFile(path);
@@ -502,7 +502,7 @@ static QStringList get_list(const char* path)
   }
 
   return stringList;
-}
+}*/
 
 void SettingsWindow::showEvent(QShowEvent *event) {
   panel_widget->setCurrentIndex(0);

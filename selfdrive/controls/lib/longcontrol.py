@@ -5,11 +5,11 @@ from selfdrive.controls.lib.pid import PIController
 from selfdrive.controls.lib.drive_helpers import CONTROL_N
 from selfdrive.modeld.constants import T_IDXS
 from common.realtime import DT_CTRL
+from selfdrive.ntune import ntune_scc_get
 
 LongCtrlState = car.CarControl.Actuators.LongControlState
 
 STOPPING_TARGET_SPEED_OFFSET = 0.01
-REGEN_THRESHOLD = 0.02
 #BRAKE_STOPPING_TARGET = 0.5  # apply at least this amount of brake to maintain the vehicle stationary, replaced CP.stopAccel
 RATE = 100.0
 # As per ISO 15622:2018 for all speeds
@@ -74,11 +74,20 @@ class LongControl():
     # Interp control trajectory
     # TODO estimate car specific lag, use .15s for now
     if len(long_plan.speeds) == CONTROL_N:
-      v_target_lower = interp(CP.longitudinalActuatorDelayLowerBound, T_IDXS[:CONTROL_N], long_plan.speeds)
-      a_target_lower = 2 * (v_target_lower - long_plan.speeds[0])/CP.longitudinalActuatorDelayLowerBound - long_plan.accels[0]
 
-      v_target_upper = interp(CP.longitudinalActuatorDelayUpperBound, T_IDXS[:CONTROL_N], long_plan.speeds)
-      a_target_upper = 2 * (v_target_upper - long_plan.speeds[0])/CP.longitudinalActuatorDelayUpperBound - long_plan.accels[0]
+      longitudinalActuatorDelayLowerBound = ntune_scc_get('longitudinalActuatorDelayLowerBound')
+      longitudinalActuatorDelayUpperBound = ntune_scc_get('longitudinalActuatorDelayUpperBound')
+
+      longitudinalActuatorDelayLowerBound = ntune_scc_get('longitudinalActuatorDelayLowerBound')
+      longitudinalActuatorDelayUpperBound = ntune_scc_get('longitudinalActuatorDelayUpperBound')
+
+      v_target_lower = interp(longitudinalActuatorDelayLowerBound, T_IDXS[:CONTROL_N], long_plan.speeds)
+      a_target_lower = 2 * (v_target_lower - long_plan.speeds[0]) / longitudinalActuatorDelayLowerBound - \
+                       long_plan.accels[0]
+
+      v_target_upper = interp(longitudinalActuatorDelayUpperBound, T_IDXS[:CONTROL_N], long_plan.speeds)
+      a_target_upper = 2 * (v_target_upper - long_plan.speeds[0]) / longitudinalActuatorDelayUpperBound - \
+                       long_plan.accels[0]
       a_target = min(a_target_lower, a_target_upper)
 
       v_target_future = long_plan.speeds[-1]
@@ -102,14 +111,7 @@ class LongControl():
       self.reset(CS.vEgo)
       output_accel = 0.
 
-#    elif CS.regenPressed:
-#      self.reset(CS.vEgo)
-#      output_accel = REGEN_THRESHOLD
 
-#    elif CS.gasPressed:
-#      self.reset(CS.vEgo)
-#      output_accel = REGEN_THRESHOLD
-      
 # tracking objects and driving
     elif self.long_control_state == LongCtrlState.pid:
       self.v_pid = long_plan.speeds[0]
