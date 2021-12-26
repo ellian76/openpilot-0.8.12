@@ -632,7 +632,7 @@ void SettingsWindow::hideEvent(QHideEvent *event) {
 }
 
 // Community Panel
-CommunityPanel::CommunityPanel(QWidget* parent) : QWidget(parent) {
+/*CommunityPanel::CommunityPanel(QWidget* parent) : QWidget(parent) {
   main_layout = new QStackedLayout(this);
   QWidget* homeScreen = new QWidget(this);
   QVBoxLayout* vlayout = new QVBoxLayout(homeScreen);
@@ -768,4 +768,4 @@ SelectCar::SelectCar(QWidget* parent): QWidget(parent) {
     emit selectedCar();
     });
   main_layout->addWidget(list);
-}
+}*/

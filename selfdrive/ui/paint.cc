@@ -89,7 +89,7 @@ static void draw_lead(UIState *s, const cereal::RadarState::LeadData::Reader &le
   draw_chevron(s, x, y, sz, COLOR_RED_ALPHA(fillAlpha), COLOR_YELLOW);
 }
 
-static float lock_on_rotation[] = {0.f, 0.2f*NVG_PI, 0.4f*NVG_PI, 0.6f*NVG_PI, 0.7f*NVG_PI, 0.5f*NVG_PI, 0.4f*NVG_PI, 0.3f*NVG_PI, 0.15f*NVG_PI};
+//static float lock_on_rotation[] = {0.f, 0.2f*NVG_PI, 0.4f*NVG_PI, 0.6f*NVG_PI, 0.7f*NVG_PI, 0.5f*NVG_PI, 0.4f*NVG_PI, 0.3f*NVG_PI, 0.15f*NVG_PI};
 
 static float lock_on_scale[] = {1.f, 1.1f, 1.2f, 1.1f, 1.f, 0.9f, 0.8f, 0.9f};
 
