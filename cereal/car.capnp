@@ -127,6 +127,11 @@ struct CarEvent @0x9b1657f34caf3ad3 {
     modelLagWarningDEPRECATED @93;
     startupOneplusDEPRECATED @82;
     startupFuzzyFingerprintDEPRECATED @97;
+
+    turningIndicatorOn @107;
+    autoLaneChange @108;
+    slowingDownSpeed @109;
+    slowingDownSpeedSound @110;
   }
 }
 
@@ -202,6 +207,19 @@ struct CarState {
   leftBlindspot @33 :Bool; # Is there something blocking the left lane change
   rightBlindspot @34 :Bool; # Is there something blocking the right lane change
 
+  cluSpeedMs @43 :Float32;
+  cruiseGap @44 : Int32;
+  autoHold @45 : Int32;
+  tpms @46 : Tpms;
+  vCluRatio @47 :Float32;
+
+  struct Tpms {
+    fl @0 :Float32;
+    fr @1 :Float32;
+    rl @2 :Float32;
+    rr @3 :Float32;
+  }
+
   struct WheelSpeeds {
     # optional wheel speeds
     fl @0 :Float32;
@@ -217,6 +235,7 @@ struct CarState {
     speedOffset @3 :Float32;
     standstill @4 :Bool;
     nonAdaptive @5 :Bool;
+    enabledAcc @6 :Bool;
   }
 
   enum GearShifter {
@@ -307,8 +326,8 @@ struct CarControl {
 
   struct Actuators {
     # range from 0.0 - 1.0
-    gas @0: Float32;
-    brake @1: Float32;
+    gasDEPRECATED @0: Float32;
+    brakeDEPRECATED @1: Float32;
     # range from -1.0 - 1.0
     steer @2: Float32;
     steeringAngleDeg @3: Float32;
@@ -370,6 +389,8 @@ struct CarControl {
       prompt @6;
       promptRepeat @7;
       promptDistracted @8;
+      slowingDownSpeed @9;
+      ready @10;
     }
   }
 
@@ -399,10 +420,10 @@ struct CarParams {
 
   steerMaxBP @11 :List(Float32);
   steerMaxV @12 :List(Float32);
-  gasMaxBP @13 :List(Float32);
-  gasMaxV @14 :List(Float32);
-  brakeMaxBP @15 :List(Float32);
-  brakeMaxV @16 :List(Float32);
+  gasMaxBPDEPRECATED @13 :List(Float32);
+  gasMaxVDEPRECATED @14 :List(Float32);
+  brakeMaxBPDEPRECATED @15 :List(Float32);
+  brakeMaxVDEPRECATED @16 :List(Float32);
 
   # things about the car in the manual
   mass @17 :Float32;            # [kg] curb weight: all fluids no cargo
@@ -481,10 +502,8 @@ struct CarParams {
     kpV @1 :List(Float32);
     kiBP @2 :List(Float32);
     kiV @3 :List(Float32);
-    kfBP @4 :List(Float32);
-    kfV @5 :List(Float32);
-    deadzoneBP @6 :List(Float32);
-    deadzoneV @7 :List(Float32);
+    deadzoneBP @4 :List(Float32);
+    deadzoneV @5 :List(Float32);
   }
 
   struct LateralINDITuning {

@@ -294,11 +294,8 @@ class Controls:
   # [크루즈 MAX 속도 설정] #
   def cal_max_speed(self, frame: int, vEgo, sm, CS):
 
-      # kph
-      # section_limit_speed * CAMERA_SPEED_FACTOR, section_limit_speed, section_left_dist, first_started, log
-      # apply_limit_speed, road_limit_speed, left_dist, first_started, max_speed_log = road_speed_limiter_get_max_speed(clu11_speed, self.is_metric)
       apply_limit_speed, road_limit_speed, left_dist, first_started, max_speed_log = \
-        road_speed_limiter_get_max_speed(vEgo, self.is_metric)
+          road_speed_limiter_get_max_speed(vEgo, self.is_metric)
 
       # print("apply_limit_speed : ", apply_limit_speed)
       # print("road_limit_speed : ", road_limit_speed)
@@ -310,9 +307,9 @@ class Controls:
       self.cal_curve_speed(sm, vEgo, frame)
 
       if SLOW_ON_CURVES and self.curve_speed_ms >= MIN_CURVE_SPEED:
-        max_speed_clu = min(self.v_cruise_kph * CV.KPH_TO_MS, self.curve_speed_ms) * self.speed_conv_to_clu
+          max_speed_clu = min(self.v_cruise_kph * CV.KPH_TO_MS, self.curve_speed_ms) * self.speed_conv_to_clu
       else:
-        max_speed_clu = self.kph_to_clu(self.v_cruise_kph)
+          max_speed_clu = self.kph_to_clu(self.v_cruise_kph)
 
       # max_speed_log = "{:.1f}/{:.1f}/{:.1f}".format(float(limit_speed),
       #                                              float(self.curve_speed_ms*self.speed_conv_to_clu),
@@ -904,7 +901,7 @@ class Controls:
     controlsState.aReqValueMin = self.aReqValueMin
     controlsState.aReqValueMax = self.aReqValueMax
 
-    # NDA Add (PSK)
+    # NDA
     controlsState.roadLimitSpeedActive = road_speed_limiter_get_active()
     controlsState.roadLimitSpeed = road_limit_speed
     controlsState.roadLimitSpeedLeftDist = left_dist
