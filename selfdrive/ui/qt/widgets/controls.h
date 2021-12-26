@@ -155,33 +155,9 @@ private:
     for (int i = 0; i < inner_layout.count() - 1; ++i) {
       QRect r = inner_layout.itemAt(i)->geometry();
       int bottom = r.bottom() + inner_layout.spacing() / 2;
-      p.drawLine(r.left() + 40, bottom, r.right() - 40, bottom);
+      //p.drawLine(r.left() + 40, bottom, r.right() - 40, bottom);
     }
   }
   QVBoxLayout outer_layout;
   QVBoxLayout inner_layout;
-};
-
-// convenience class for wrapping layouts
-class LayoutWidget : public QWidget {
-  Q_OBJECT
-
-public:
-  LayoutWidget(QLayout *l, QWidget *parent = nullptr) : QWidget(parent) {
-    setLayout(l);
-  };
-};
-
-class ClickableWidget : public QWidget {
-  Q_OBJECT
-
-public:
-  ClickableWidget(QWidget *parent = nullptr);
-
-protected:
-  void mouseReleaseEvent(QMouseEvent *event) override;
-  void paintEvent(QPaintEvent *) override;
-
-signals:
-  void clicked();
 };

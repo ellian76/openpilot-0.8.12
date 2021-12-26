@@ -106,11 +106,15 @@ void MapWindow::initLayers() {
 }
 
 void MapWindow::timerUpdate() {
-  if (!uiState()->scene.started) {
+  if (!QUIState::ui_state.scene.started) {
     return;
   }
 
   update();
+
+  if (m_map.isNull()) {
+    return;
+  }
 
   sm->update(0);
   if (sm->updated("liveLocationKalman")) {
@@ -130,21 +134,6 @@ void MapWindow::timerUpdate() {
       velocity_filter.update(velocity);
     }
   }
-
-  if (sm->updated("navRoute")) {
-    qWarning() << "Got new navRoute from navd. Opening map:" << allow_open;
-
-    // Only open the map on setting destination the first time
-    if (allow_open) {
-      setVisible(true); // Show map on destination set/change
-      allow_open = false;
-    }
-  }
-
-  if (m_map.isNull()) {
-    return;
-  }
-
   loaded_once = loaded_once || m_map->isFullyLoaded();
   if (!loaded_once) {
     map_instructions->showError("Map Loading");
@@ -197,7 +186,7 @@ void MapWindow::timerUpdate() {
   }
 
   if (sm->rcv_frame("navRoute") != route_rcv_frame) {
-    qWarning() << "Updating navLayer with new route";
+    qWarning() << "Got new navRoute from navd";
     auto route = (*sm)["navRoute"].getNavRoute();
     auto route_points = capnp_coordinate_list_to_collection(route.getCoordinates());
     QMapbox::Feature feature(QMapbox::Feature::LineStringType, route_points, {}, {});
@@ -207,6 +196,11 @@ void MapWindow::timerUpdate() {
     m_map->updateSource("navSource", navSource);
     m_map->setLayoutProperty("navLayer", "visibility", "visible");
 
+    // Only open the map on setting destination the first time
+    if (allow_open) {
+      setVisible(true); // Show map on destination set/change
+      allow_open = false;
+    }
     route_rcv_frame = sm->rcv_frame("navRoute");
   }
 }
@@ -387,7 +381,7 @@ void MapInstructions::updateDistance(float d) {
   d = std::max(d, 0.0f);
   QString distance_str;
 
-  if (uiState()->scene.is_metric) {
+  if (QUIState::ui_state.scene.is_metric) {
     if (d > 500) {
       distance_str.setNum(d / 1000, 'f', 1);
       distance_str += " km";
@@ -498,9 +492,10 @@ void MapInstructions::updateInstructions(cereal::NavInstruction::Reader instruct
       fn += "turn_straight";
     }
 
+    QPixmap pix(fn + ICON_SUFFIX);
     auto icon = new QLabel;
     int wh = active ? 125 : 75;
-    icon->setPixmap(loadPixmap(fn + ICON_SUFFIX, {wh, wh}, Qt::IgnoreAspectRatio));
+    icon->setPixmap(pix.scaled(wh, wh, Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
     icon->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
     lane_layout->addWidget(icon);
   }
@@ -619,7 +614,7 @@ void MapETA::updateETA(float s, float s_typical, float d) {
   // Distance
   QString distance_str;
   float num = 0;
-  if (uiState()->scene.is_metric) {
+  if (QUIState::ui_state.scene.is_metric) {
     num = d / 1000.0;
     distance_unit->setText("km");
   } else {

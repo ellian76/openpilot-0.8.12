@@ -7,7 +7,6 @@
 #include <QOpenGLWidget>
 #include <QThread>
 #include "cereal/visionipc/visionipc_client.h"
-#include "selfdrive/camerad/cameras/camera_common.h"
 #include "selfdrive/common/visionimg.h"
 #include "selfdrive/ui/ui.h"
 
@@ -33,7 +32,7 @@ protected:
   void showEvent(QShowEvent *event) override;
   void hideEvent(QHideEvent *event) override;
   void mouseReleaseEvent(QMouseEvent *event) override { emit clicked(); }
-  virtual void updateFrameMat(int w, int h);
+  void updateFrameMat(int w, int h);
   void vipcThread();
 
   bool zoomed_view;

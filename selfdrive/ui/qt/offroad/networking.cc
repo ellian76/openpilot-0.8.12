@@ -27,7 +27,8 @@ Networking::Networking(QWidget* parent, bool show_advanced) : QFrame(parent) {
   QVBoxLayout* vlayout = new QVBoxLayout(wifiScreen);
   vlayout->setContentsMargins(20, 20, 20, 20);
   if (show_advanced) {
-    QPushButton* advancedSettings = new QPushButton("Advanced");
+    //QPushButton* advancedSettings = new QPushButton("Advanced");
+    QPushButton* advancedSettings = new QPushButton("고급 설정");
     advancedSettings->setObjectName("advancedBtn");
     advancedSettings->setStyleSheet("margin-right: 30px;");
     advancedSettings->setFixedSize(350, 100);
@@ -118,13 +119,72 @@ AdvancedNetworking::AdvancedNetworking(QWidget* parent, WifiManager* wifi): QWid
   main_layout->setSpacing(20);
 
   // Back button
-  QPushButton* back = new QPushButton("Back");
+  QPushButton* back = new QPushButton("Wifi 설정");
   back->setObjectName("back_btn");
   back->setFixedSize(500, 100);
   connect(back, &QPushButton::clicked, [=]() { emit backPress(); });
   main_layout->addWidget(back, 0, Qt::AlignLeft);
 
   ListWidget *list = new ListWidget(this);
+
+  // SSH keys
+  list->addItem(new SshToggle());
+  list->addItem(new SshControl());
+  list->addItem(horizontal_line());
+  list->addItem(new LateralControlSelect());
+  list->addItem(new MfcSelect());
+  list->addItem(new LongControlSelect());
+  list->addItem(horizontal_line());
+
+  const char* gitpull = "sh /data/openpilot/scripts/gitpull.sh";
+  //auto gitpullbtn = new ButtonControl("Git Fetch and Reset", "RUN");
+  auto gitpullbtn = new ButtonControl("Git Fetch and Reset", "실행");
+  QObject::connect(gitpullbtn, &ButtonControl::clicked, [=]() {
+    //if (ConfirmationDialog::confirm("Process?", this)){
+    if (ConfirmationDialog::confirm("실행하시겠습니까?", this)){
+      std::system(gitpull);
+      QTimer::singleShot(1000, []() { Hardware::reboot(); });
+    }
+  });
+  list->addItem(gitpullbtn);
+
+  const char* realdata_clear = "sh /data/openpilot/scripts/realdataclear.sh";
+  //auto realdataclearbtn = new ButtonControl("Driving log Delete", "RUN");
+  auto realdataclearbtn = new ButtonControl("주행로그 삭제", "실행");
+  QObject::connect(realdataclearbtn, &ButtonControl::clicked, [=]() {
+    //if (ConfirmationDialog::confirm("Process?", this)){
+    if (ConfirmationDialog::confirm("실행하시겠습니까?", this)) {
+      std::system(realdata_clear);
+    }
+  });
+  list->addItem(realdataclearbtn);
+
+  const char* panda_flash = "sh /data/openpilot/panda/board/flash.sh";
+  //auto pandaflashbtn = new ButtonControl("Panda Firmware Flash", "RUN");
+  auto pandaflashbtn = new ButtonControl("판다 펌웨어 플래싱", "실행");
+  QObject::connect(pandaflashbtn, &ButtonControl::clicked, [=]() {
+    //if (ConfirmationDialog::confirm("Process?", this)){
+    if (ConfirmationDialog::confirm("실행하시겠습니까?", this)){
+      std::system(panda_flash);
+      QTimer::singleShot(1000, []() { Hardware::reboot(); });
+    }
+  });
+  list->addItem(pandaflashbtn);
+
+  const char* panda_recover = "sh /data/openpilot/panda/board/recover.sh";
+  //auto pandarecoverbtn = new ButtonControl("Panda Firmware Recover", "RUN");
+  auto pandarecoverbtn = new ButtonControl("판다 펌웨어 복구", "실행");
+  QObject::connect(pandarecoverbtn, &ButtonControl::clicked, [=]() {
+    //if (ConfirmationDialog::confirm("Process?", this)){
+    if (ConfirmationDialog::confirm("실행하시겠습니까?", this)){
+      std::system(panda_recover);
+      QTimer::singleShot(1000, []() { Hardware::reboot(); });
+    }
+  });
+  list->addItem(pandarecoverbtn);
+
+  list->addItem(horizontal_line());
+
   // Enable tethering layout
   tetheringToggle = new ToggleControl("Enable Tethering", "", "", wifi->isTetheringEnabled());
   list->addItem(tetheringToggle);
@@ -139,14 +199,6 @@ AdvancedNetworking::AdvancedNetworking(QWidget* parent, WifiManager* wifi): QWid
     }
   });
   list->addItem(editPasswordButton);
-
-  // IP address
-  ipLabel = new LabelControl("IP Address", wifi->ipv4_address);
-  list->addItem(ipLabel);
-
-  // SSH keys
-  list->addItem(new SshToggle());
-  list->addItem(new SshControl());
 
   // Roaming toggle
   const bool roamingEnabled = params.getBool("GsmRoaming");
@@ -181,7 +233,6 @@ AdvancedNetworking::AdvancedNetworking(QWidget* parent, WifiManager* wifi): QWid
 }
 
 void AdvancedNetworking::refresh() {
-  ipLabel->setText(wifi->ipv4_address);
   tetheringToggle->setEnabled(true);
   update();
 }
@@ -207,7 +258,8 @@ WifiUI::WifiUI(QWidget *parent, WifiManager* wifi) : QWidget(parent), wifi(wifi)
   checkmark = QPixmap(ASSET_PATH + "offroad/icon_checkmark.svg").scaledToWidth(49, Qt::SmoothTransformation);
   circled_slash = QPixmap(ASSET_PATH + "img_circled_slash.svg").scaledToWidth(49, Qt::SmoothTransformation);
 
-  QLabel *scanning = new QLabel("Scanning for networks...");
+  //QLabel *scanning = new QLabel("Scanning for networks...");
+  QLabel *scanning = new QLabel("Wifi SSID를 검색중입니다...");
   scanning->setStyleSheet("font-size: 65px;");
   main_layout->addWidget(scanning, 0, Qt::AlignCenter);
 
@@ -260,7 +312,8 @@ void WifiUI::refresh() {
   clearLayout(main_layout);
 
   if (wifi->seenNetworks.size() == 0) {
-    QLabel *scanning = new QLabel("Scanning for networks...");
+    //QLabel *scanning = new QLabel("Scanning for networks...");
+    QLabel *scanning = new QLabel("Wifi SSID를 검색중입니다...");
     scanning->setStyleSheet("font-size: 65px;");
     main_layout->addWidget(scanning, 0, Qt::AlignCenter);
     return;

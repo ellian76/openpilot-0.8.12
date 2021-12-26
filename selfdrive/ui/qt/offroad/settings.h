@@ -7,6 +7,7 @@
 #include <QPushButton>
 #include <QStackedWidget>
 #include <QWidget>
+#include <QStackedLayout>
 
 
 #include "selfdrive/ui/qt/widgets/controls.h"
@@ -24,6 +25,7 @@ protected:
 
 signals:
   void closeSettings();
+  void offroadTransition(bool offroad);
   void reviewTrainingGuide();
   void showDriverView();
 
@@ -41,14 +43,12 @@ public:
 signals:
   void reviewTrainingGuide();
   void showDriverView();
+  void closeSettings();
 
 private slots:
   void poweroff();
   void reboot();
   void updateCalibDescription();
-
-private:
-  Params params;
 };
 
 class TogglesPanel : public ListWidget {
@@ -66,6 +66,7 @@ private:
   void showEvent(QShowEvent *event) override;
   void updateLabels();
 
+  LabelControl *gitRemoteLbl;
   LabelControl *gitBranchLbl;
   LabelControl *gitCommitLbl;
   LabelControl *osVersionLbl;
@@ -77,13 +78,30 @@ private:
   QFileSystemWatcher *fs_watch;
 };
 
-class C2NetworkPanel: public QWidget {
+class SelectCar : public QWidget {
   Q_OBJECT
 public:
-  explicit C2NetworkPanel(QWidget* parent = nullptr);
+  explicit SelectCar(QWidget* parent = 0);
 
 private:
-  void showEvent(QShowEvent *event) override;
-  QString getIPAddress();
-  LabelControl *ipaddress;
+
+signals:
+  void backPress();
+  void selectedCar();
+
 };
+
+class CommunityPanel : public QWidget {
+  Q_OBJECT
+
+private:
+  QStackedLayout* main_layout = nullptr;
+  QWidget* homeScreen = nullptr;
+  SelectCar* selectCar = nullptr;
+
+  QWidget* homeWidget;
+
+public:
+  explicit CommunityPanel(QWidget *parent = nullptr);
+};
+

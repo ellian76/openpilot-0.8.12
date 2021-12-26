@@ -1,5 +1,7 @@
 #pragma once
 
+#include <atomic>
+#include <map>
 #include <memory>
 #include <string>
 #include <optional>
@@ -8,13 +10,35 @@
 #include <QTimer>
 #include <QColor>
 #include <QTransform>
+#include "nanovg.h"
 
 #include "cereal/messaging/messaging.h"
+#include "common/transformations/orientation.hpp"
+#include "selfdrive/camerad/cameras/camera_common.h"
+#include "selfdrive/common/mat.h"
 #include "selfdrive/common/modeldata.h"
 #include "selfdrive/common/params.h"
-#include "selfdrive/common/timing.h"
+#include "selfdrive/common/util.h"
+#include "selfdrive/common/visionimg.h"
 
-const int bdr_s = 30;
+#define COLOR_BLACK nvgRGBA(0, 0, 0, 255)
+#define COLOR_BLACK_ALPHA(x) nvgRGBA(0, 0, 0, x)
+#define COLOR_WHITE nvgRGBA(255, 255, 255, 255)
+#define COLOR_WHITE_ALPHA(x) nvgRGBA(255, 255, 255, x)
+#define COLOR_RED nvgRGBA(255, 0, 0, 255)
+#define COLOR_RED_ALPHA(x) nvgRGBA(255, 0, 0, x)
+#define COLOR_YELLOW nvgRGBA(255, 255, 0, 255)
+#define COLOR_YELLOW_ALPHA(x) nvgRGBA(255, 255, 0, x)
+#define COLOR_ENGAGED nvgRGBA(23, 134, 68, 255)
+#define COLOR_ENGAGED_ALPHA(x) nvgRGBA(23, 134, 68, x)
+#define COLOR_WARNING nvgRGBA(218, 111, 37, 255)
+#define COLOR_WARNING_ALPHA(x) nvgRGBA(218, 111, 37, x)
+#define COLOR_ENGAGEABLE nvgRGBA(23, 51, 73, 255)
+#define COLOR_ENGAGEABLE_ALPHA(x) nvgRGBA(23, 51, 73, x)
+#define COLOR_LIME nvgRGBA(120, 255, 120, 255)
+#define COLOR_LIME_ALPHA(x) nvgRGBA(120, 255, 120, x)
+
+const int bdr_s = 10;
 const int header_h = 420;
 const int footer_h = 280;
 
@@ -25,6 +49,17 @@ typedef cereal::CarControl::HUDControl::AudibleAlert AudibleAlert;
 // TODO: choose based on frame input size
 const float y_offset = Hardware::EON() ? 0.0 : 150.0;
 const float ZOOM = Hardware::EON() ? 2138.5 : 2912.8;
+
+typedef struct Rect {
+  int x, y, w, h;
+  int centerX() const { return x + w / 2; }
+  int centerY() const { return y + h / 2; }
+  int right() const { return x + w; }
+  int bottom() const { return y + h; }
+  bool ptInRect(int px, int py) const {
+    return px >= x && px < (x + w) && py >= y && py < (y + h);
+  }
+} Rect;
 
 struct Alert {
   QString text1;
@@ -47,13 +82,13 @@ struct Alert {
       // Handle controls timeout
       if (sm.rcv_frame("controlsState") < started_frame) {
         // car is started, but controlsState hasn't been seen at all
-        return {"openpilot Unavailable", "Waiting for controls to start",
-                "controlsWaiting", cereal::ControlsState::AlertSize::MID,
-                AudibleAlert::NONE};
+        return {"오픈파일럿을 사용할수없습니다", "프로세스가 준비중입니다",
+                "프로세스가 준비중입니다", cereal::ControlsState::AlertSize::MID,
+                                      AudibleAlert::NONE};
       } else if ((nanos_since_boot() - sm.rcv_time("controlsState")) / 1e9 > CONTROLS_TIMEOUT) {
         // car is started, but controls is lagging or died
-        return {"TAKE CONTROL IMMEDIATELY", "Controls Unresponsive",
-                "controlsUnresponsive", cereal::ControlsState::AlertSize::FULL,
+        return {"핸들을 잡아주세요", "프로세스가 응답하지않습니다",
+                "프로세스가 응답하지않습니다", cereal::ControlsState::AlertSize::FULL,
                 AudibleAlert::WARNING_IMMEDIATE};
       }
     }
@@ -70,19 +105,35 @@ typedef enum UIStatus {
 
 const QColor bg_colors [] = {
   [STATUS_DISENGAGED] =  QColor(0x17, 0x33, 0x49, 0xc8),
-  [STATUS_ENGAGED] = QColor(0x17, 0x86, 0x44, 0xf1),
-  [STATUS_WARNING] = QColor(0xDA, 0x6F, 0x25, 0xf1),
+  [STATUS_ENGAGED] = QColor(0x17, 0x86, 0x44, 0x01),
+  [STATUS_WARNING] = QColor(0xDA, 0x6F, 0x25, 0x01),
   [STATUS_ALERT] = QColor(0xC9, 0x22, 0x31, 0xf1),
 };
 
 typedef struct {
-  QPointF v[TRAJECTORY_SIZE * 2];
+  float x, y;
+} vertex_data;
+
+typedef struct {
+  vertex_data v[TRAJECTORY_SIZE * 2];
   int cnt;
 } line_vertices_data;
 
 typedef struct UIScene {
+
   mat3 view_from_calib;
   bool world_objects_visible;
+
+  // ui add
+  float cpuTempAvg;
+  int lateralControlSelect;
+  float output_scale;
+  bool leftBlinker, rightBlinker;
+  int blinkingrate;
+
+  // gps
+  int satelliteCount;
+  float gpsAccuracy;
 
   cereal::PandaState::PandaType pandaType;
 
@@ -93,21 +144,33 @@ typedef struct UIScene {
   line_vertices_data lane_line_vertices[4];
   line_vertices_data road_edge_vertices[2];
 
+  bool dm_active, engageable;
+
   // lead
-  QPointF lead_vertices[2];
+  vertex_data lead_vertices_radar[2];
+  vertex_data lead_vertices[2];
 
   float light_sensor, accel_sensor, gyro_sensor;
   bool started, ignition, is_metric, longitudinal_control, end_to_end;
   uint64_t started_frame;
+
+  // neokii dev UI
+  cereal::CarControl::Reader car_control;
+  cereal::DeviceState::Reader device_state;
+  cereal::CarState::Reader car_state;
+  cereal::ControlsState::Reader controls_state;
+  cereal::CarParams::Reader car_params;
+  cereal::GpsLocationData::Reader gps_ext;
+  cereal::LiveParametersData::Reader live_params;
+
 } UIScene;
 
-class UIState : public QObject {
-  Q_OBJECT
-
-public:
-  UIState(QObject* parent = 0);
-
+typedef struct UIState {
   int fb_w = 0, fb_h = 0;
+  NVGcontext *vg;
+
+  // images
+  std::map<std::string, int> images;
 
   std::unique_ptr<SubMaster> sm;
 
@@ -119,6 +182,23 @@ public:
 
   QTransform car_space_transform;
   bool wide_camera;
+
+  float running_time;
+
+  //
+  int lock_on_anim_index;
+
+} UIState;
+
+
+class QUIState : public QObject {
+  Q_OBJECT
+
+public:
+  QUIState(QObject* parent = 0);
+
+  // TODO: get rid of this, only use signal
+  inline static UIState ui_state = {0};
 
 signals:
   void uiUpdate(const UIState &s);
@@ -132,7 +212,6 @@ private:
   bool started_prev = true;
 };
 
-UIState *uiState();
 
 // device management class
 
@@ -147,23 +226,21 @@ private:
   const float accel_samples = 5*UI_FREQ;
 
   bool awake = false;
-  int interactive_timeout = 0;
-  bool ignition_on = false;
+  int awake_timeout = 0;
+  float accel_prev = 0;
+  float gyro_prev = 0;
   int last_brightness = 0;
   FirstOrderFilter brightness_filter;
 
+  QTimer *timer;
+
   void updateBrightness(const UIState &s);
   void updateWakefulness(const UIState &s);
-  bool motionTriggered(const UIState &s);
-  void setAwake(bool on);
 
 signals:
   void displayPowerChanged(bool on);
-  void interactiveTimout();
 
 public slots:
-  void resetInteractiveTimout();
+  void setAwake(bool on, bool reset);
   void update(const UIState &s);
 };
-
-void ui_update_params(UIState *s);

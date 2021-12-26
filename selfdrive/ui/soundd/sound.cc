@@ -1,7 +1,5 @@
 #include "selfdrive/ui/soundd/sound.h"
 
-#include <cmath>
-
 #include <QAudio>
 #include <QAudioDeviceInfo>
 #include <QDebug>
@@ -67,7 +65,7 @@ void Sound::setAlert(const Alert &alert) {
     for (auto &[s, loops] : sounds) {
       // Only stop repeating sounds
       if (s->loopsRemaining() > 1 || s->loopsRemaining() == QSoundEffect::Infinite) {
-        s->stop();
+        s->setLoopCount(0);
       }
     }
 
