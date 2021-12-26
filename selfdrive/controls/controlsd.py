@@ -188,6 +188,18 @@ class Controls:
     self.slowing_down_sound_alert = False
     self.active_cam = False
 
+    # scc smoother
+    self.is_cruise_enabled = False
+    self.applyMaxSpeed = 0
+    self.apply_accel = 0.
+    self.fused_accel = 0.
+    self.lead_drel = 0.
+    self.aReqValue = 0.
+    self.aReqValueMin = 0.
+    self.aReqValueMax = 0.
+    self.sccStockCamStatus = 0
+    self.sccStockCamAct = 0
+
     self.mismatch_counter = 0
     self.cruise_mismatch_counter = 0
     self.can_error_counter = 0
