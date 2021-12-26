@@ -92,26 +92,38 @@ class CarInterface(CarInterfaceBase):
                                                                          tire_stiffness_factor=tire_stiffness_factor)
 
     # longitudinal
-    ret.longitudinalTuning.kpBP = [0., 10.*CV.KPH_TO_MS, 25.*CV.KPH_TO_MS, 40.*CV.KPH_TO_MS, 60.*CV.KPH_TO_MS, 80.*CV.KPH_TO_MS, 100.*CV.KPH_TO_MS, 110.*CV.KPH_TO_MS]
-    ret.longitudinalTuning.kpV = [1.20, 1.05, 0.81, 0.66, 0.63, 0.57, 0.54, 0.52]
-  
+    #ret.longitudinalTuning.kpBP = [0., 10.*CV.KPH_TO_MS, 25.*CV.KPH_TO_MS, 40.*CV.KPH_TO_MS, 60.*CV.KPH_TO_MS, 80.*CV.KPH_TO_MS, 100.*CV.KPH_TO_MS, 110.*CV.KPH_TO_MS]
+    #ret.longitudinalTuning.kpV = [1.20, 1.05, 0.81, 0.66, 0.63, 0.57, 0.54, 0.52]
+    #ret.longitudinalTuning.kiBP = [0., 130. * CV.KPH_TO_MS]
+    #ret.longitudinalTuning.kiV = [0.25, 0.12]
+    #ret.longitudinalTuning.deadzoneBP = [0., 30.*CV.KPH_TO_MS]
+    #ret.longitudinalTuning.deadzoneV = [0., 0.10]
+    #ret.longitudinalActuatorDelayLowerBound = 0.13
+    #ret.longitudinalActuatorDelayUpperBound = 0.17
+
+    # Neokii
+    ret.longitudinalTuning.kpBP = [0., 10. * CV.KPH_TO_MS, 20. * CV.KPH_TO_MS, 130. * CV.KPH_TO_MS]
+    ret.longitudinalTuning.kpV = [1.5, 0.94, 0.8, 0.48]
     ret.longitudinalTuning.kiBP = [0., 130. * CV.KPH_TO_MS]
-    ret.longitudinalTuning.kiV = [0.25, 0.12]
+    ret.longitudinalTuning.kiV = [0.18, 0.12]
+    ret.longitudinalActuatorDelayLowerBound = 0.15
+    ret.longitudinalActuatorDelayUpperBound = 0.2
     
-    #ret.longitudinalTuning.kfBP = [15., 20., 25.]
-    #ret.longitudinalTuning.kfV = [1., 0.5, 0.2]
-    
-    ret.longitudinalTuning.deadzoneBP = [0., 30.*CV.KPH_TO_MS]
-    ret.longitudinalTuning.deadzoneV = [0., 0.10]
-    ret.longitudinalActuatorDelayLowerBound = 0.13
-    ret.longitudinalActuatorDelayUpperBound = 0.17
-    
+    #ret.startAccel = -0.8
+    #ret.stopAccel = -4.0
+    #ret.startingAccelRate = 1.6
+    #ret.stoppingDecelRate = 1.5
+    #ret.vEgoStopping = 0.5
+    #ret.vEgoStarting = 0.5
+
+    # Neokii
     ret.startAccel = -0.8
-    ret.stopAccel = -4.0
-    ret.startingAccelRate = 1.6
-    ret.stoppingDecelRate = 1.5
-    ret.vEgoStopping = 0.5
+    ret.stopAccel = -2.5
+    ret.startingAccelRate = 5.0  # brake_travel/s while releasing on restart
+    ret.stoppingDecelRate = 0.3  # brake_travel/s while trying to stop
+    ret.vEgoStopping = 0.6
     ret.vEgoStarting = 0.5
+
     ret.stoppingControl = True
     
     ret.steerLimitTimer = 0.4
