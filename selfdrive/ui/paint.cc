@@ -450,6 +450,8 @@ static void ui_draw_scc_gap(UIState *s) {
 
   auto control_state = (*s->sm)["controlsState"].getControlsState();
   int gap = control_state.getDistanceGap();
+  if(gap < 0)
+    return;
 
   NVGcolor color_bg = COLOR_BLACK_ALPHA(255 * 0.1f);
   nvgBeginPath(s->vg);
