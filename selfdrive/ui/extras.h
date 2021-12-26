@@ -7,10 +7,12 @@
 
 static void ui_draw_extras_limit_speed(UIState *s) {
     const UIScene *scene = &s->scene;
-    cereal::CarControl::SccSmoother::Reader scc_smoother = scene->car_control.getSccSmoother();
-    int activeNDA = scc_smoother.getRoadLimitSpeedActive();
-    int limit_speed = scc_smoother.getRoadLimitSpeed();
-    int left_dist = scc_smoother.getRoadLimitSpeedLeftDist();
+
+    auto control_state = (*s->sm)["controlsState"].getControlsState();
+
+    int activeNDA = control_state.getRoadLimitSpeedActive();
+    int limit_speed = control_state.getRoadLimitSpeed();
+    int left_dist = control_state.getRoadLimitSpeedLeftDist();
 
     if (activeNDA > 0) {
         int w = 120;
@@ -55,7 +57,8 @@ static void ui_draw_extras_limit_speed(UIState *s) {
             snprintf(str, sizeof(str), "%dm", left_dist);
 
         nvgText(s->vg, x+w/2, y+h + 70, str, NULL);
-    } else {
+    }
+    /*else {
         auto controls_state = (*s->sm)["controlsState"].getControlsState();
         int sccStockCamAct = (int)controls_state.getSccStockCamAct();
         int sccStockCamStatus = (int)controls_state.getSccStockCamStatus();
@@ -84,7 +87,7 @@ static void ui_draw_extras_limit_speed(UIState *s) {
 
             nvgText(s->vg, x+w/2, y+h/2, "CAM", NULL);
         }
-    }
+    }*/
 }
 
 static void ui_draw_extras(UIState *s) {

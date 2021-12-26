@@ -113,7 +113,7 @@ static void draw_lead_custom(UIState *s, const cereal::RadarState::LeadData::Rea
 
     float bg_alpha = 1.0f;
     float img_alpha = 1.0f;
-    NVGcolor bg_color = COLOR_BLACK_ALPHA(255 * bg_alpha);
+    //NVGcolor bg_color = COLOR_BLACK_ALPHA(255 * bg_alpha);
 
     const char* image = lead_data.getRadar() ? "custom_lead_radar" : "custom_lead_vision";
 
@@ -253,7 +253,7 @@ static void ui_draw_bottom_info(UIState *s) {
     "[ %s ] SR[%.2f] MDPS[%d] SCC[%d] LongControl[ %s ] GPS[ Alt(%.1f) Acc(%.1f) Sat(%d) ]",
     lateral_state[lateralControlState],
     controls_state.getSteerRatio(),
-    car_params.getMdpsBus(), car_params.getSccBus(),
+    //car_params.getMdpsBus(), car_params.getSccBus(),
     long_state[longControlState],
     gpsAltitude,
     gpsAccuracy,
@@ -269,8 +269,8 @@ static void ui_draw_bottom_info(UIState *s) {
 
 static void ui_draw_vision_maxspeed(UIState *s) {
   // scc smoother
-  cereal::CarControl::SccSmoother::Reader scc_smoother = s->scene.car_control.getSccSmoother();
-  bool longControl = scc_smoother.getLongControl();
+  //cereal::CarControl::SccSmoother::Reader scc_smoother = s->scene.car_control.getSccSmoother();
+  //bool longControl = scc_smoother.getLongControl();
   // kph
   float applyMaxSpeed = scc_smoother.getApplyMaxSpeed();
   float cruiseMaxSpeed = scc_smoother.getCruiseMaxSpeed();
@@ -449,10 +449,10 @@ static void ui_draw_scc_gap(UIState *s) {
   const int center_x = radius + (bdr_s*2) + (radius*2);
   const int center_y = s->fb_h - (footer_h/2) + 20;
 
-  int gap = s->scene.car_state.getCruiseGap();
-  auto scc_smoother = s->scene.car_control.getSccSmoother();
-  bool longControl = scc_smoother.getLongControl();
-  int autoTrGap = scc_smoother.getAutoTrGap();
+  auto control_state = (*s->sm)["controlsState"].getControlsState();
+  int gap = control_state.getDistanceGap();
+  if(gap < 0)
+    return;
 
   NVGcolor color_bg = COLOR_BLACK_ALPHA(255 * 0.1f);
   nvgBeginPath(s->vg);
@@ -462,14 +462,20 @@ static void ui_draw_scc_gap(UIState *s) {
   NVGcolor textColor = COLOR_WHITE_ALPHA(200);
   float textSize = 25.f;
   char str[64];
-  if (gap <= 0) {
-    snprintf(str, sizeof(str), "-");
-  } else if (longControl && gap == autoTrGap) {
+  if(gap == 0) {
     snprintf(str, sizeof(str), "AUTO");
-    textColor = COLOR_LIME_ALPHA(200);
-  } else {
-    snprintf(str, sizeof(str), "%d", (int)gap);
-    textColor = COLOR_LIME_ALPHA(200);
+    textColor = nvgRGBA(120, 255, 120, 200);
+  } else if (gap == 1) {
+    snprintf(str, sizeof(str), "NEAR");
+    textColor = nvgRGBA(120, 255, 120, 200);
+    textSize = 30.f;
+  } else if (gap == 2) {
+    snprintf(str, sizeof(str), "MID");
+    textColor = nvgRGBA(120, 255, 120, 200);
+    textSize = 30.f;
+  } else if (gap == 3) {
+    snprintf(str, sizeof(str), "FAR");
+    textColor = nvgRGBA(120, 255, 120, 200);
     textSize = 30.f;
   }
   nvgTextAlign(s->vg, NVG_ALIGN_CENTER | NVG_ALIGN_MIDDLE);
