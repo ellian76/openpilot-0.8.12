@@ -582,6 +582,9 @@ struct ControlsState @0x97ff69c53601abf1 {
   longitudinalActuatorDelayLowerBound @76 :Float32;
   longitudinalActuatorDelayUpperBound @77 :Float32;
 
+  # add
+  lateralControlSelect  @78 :UInt8;
+
 
   # UI alerts
   alertText1 @24 :Text;

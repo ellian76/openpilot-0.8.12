@@ -13,7 +13,7 @@
 #endif
 
 #define NANOVG_GLES3_IMPLEMENTATION
-#include <nanovg_gl.h>
+#include "third_party/nanovg/nanovg_gl.h"
 #include <nanovg_gl_utils.h>
 
 #include "selfdrive/common/util.h"
