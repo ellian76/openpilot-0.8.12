@@ -6,7 +6,7 @@
 
 
 static void ui_draw_extras_limit_speed(UIState *s) {
-    const UIScene *scene = &s->scene;
+    //const UIScene *scene = &s->scene;
 
     auto control_state = (*s->sm)["controlsState"].getControlsState();
 

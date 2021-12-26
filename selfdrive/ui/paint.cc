@@ -111,7 +111,7 @@ static void draw_lead_custom(UIState *s, const cereal::RadarState::LeadData::Rea
     y = std::fmin(s->fb_h - sz * .6, y);
     y = std::fmin(s->fb_h * 0.8f, y);
 
-    float bg_alpha = 1.0f;
+    //float bg_alpha = 1.0f;
     float img_alpha = 1.0f;
     //NVGcolor bg_color = COLOR_BLACK_ALPHA(255 * bg_alpha);
 
@@ -225,11 +225,11 @@ static void ui_draw_world(UIState *s) {
 }
 
 static void ui_draw_bottom_info(UIState *s) {
-    const UIScene *scene = &s->scene;
+    //const UIScene *scene = &s->scene;
     char str[1024];
     auto controls_state = (*s->sm)["controlsState"].getControlsState();
-    auto car_params = (*s->sm)["carParams"].getCarParams();
-    auto car_state = (*s->sm)["carState"].getCarState();
+    //auto car_params = (*s->sm)["carParams"].getCarParams();
+    //auto car_state = (*s->sm)["carState"].getCarState();
 
     int longControlState = (int)controls_state.getLongControlState();
     const char* long_state[] = {"Off", "Pid", "Stopping", "Starting"};
@@ -250,14 +250,14 @@ static void ui_draw_bottom_info(UIState *s) {
       gpsAccuracy = 99.8;
 
     snprintf(str, sizeof(str),
-    "[ %s ] SR[%.2f] MDPS[%d] SCC[%d] LongControl[ %s ] GPS[ Alt(%.1f) Acc(%.1f) Sat(%d) ]",
+    "[ %s ] SR[%.2f]",
     lateral_state[lateralControlState],
     controls_state.getSteerRatio(),
     //car_params.getMdpsBus(), car_params.getSccBus(),
-    long_state[longControlState],
-    gpsAltitude,
-    gpsAccuracy,
-    gpsSatelliteCount
+    //long_state[longControlState],
+    //gpsAltitude,
+    //gpsAccuracy,
+    //gpsSatelliteCount
     );
 
     int x = bdr_s * 2;
@@ -268,12 +268,14 @@ static void ui_draw_bottom_info(UIState *s) {
 }
 
 static void ui_draw_vision_maxspeed(UIState *s) {
-  // scc smoother
-  //cereal::CarControl::SccSmoother::Reader scc_smoother = s->scene.car_control.getSccSmoother();
-  //bool longControl = scc_smoother.getLongControl();
-  // kph
-  float applyMaxSpeed = scc_smoother.getApplyMaxSpeed();
-  float cruiseMaxSpeed = scc_smoother.getCruiseMaxSpeed();
+
+  auto control_state = (*s->sm)["controlsState"].getControlsState();
+
+  // 상단속도 : 적용 속도
+  // 하단속도 : 크루즈 속도
+
+  float applyMaxSpeed = control_state.getApplyMaxSpeed();
+  float cruiseMaxSpeed = control_state.getCruiseMaxSpeed();
   bool is_cruise_set = (cruiseMaxSpeed > 0 && cruiseMaxSpeed < 255);
 
   const Rect rect = {bdr_s * 2, int(bdr_s * 1.5), 184, 202};
@@ -297,10 +299,7 @@ static void ui_draw_vision_maxspeed(UIState *s) {
         snprintf(str, sizeof(str), "%d", (int)(cruiseMaxSpeed*KM_TO_MILE + 0.5));
     ui_draw_text(s, text_x, 195, str, 45 * 2.5, COLOR_WHITE, "sans-bold");
   } else {
-    if (longControl)
-        ui_draw_text(s, text_x, 100, "OP", 25 * 2.5, COLOR_YELLOW_ALPHA(100), "sans-semibold");
-    else
-        ui_draw_text(s, text_x, 100, "SET", 25 * 2.5, COLOR_YELLOW_ALPHA(100), "sans-semibold");
+    ui_draw_text(s, text_x, 100, "SET", 25 * 2.5, COLOR_YELLOW_ALPHA(100), "sans-semibold");
     ui_draw_text(s, text_x, 195, "-", 45 * 2.5, COLOR_WHITE_ALPHA(100), "sans-semibold");
   }
 }
