@@ -266,12 +266,12 @@ class Controls:
             # 속도를 증가하는 속도를 Delay 한다. -> 속도를 더 지속적으로 낮춘다.
             accel *= 0.001
 
-          if accel < 0.:
-            # target_speed = vEgo + accel  # accel 값은 1키로씩 상승한다.
-            # min_set_speed_clu = 5km
-            target_speed = vEgo + accel  # accel 값은 1키로씩 감소한다. (60,59,58,57)
-            target_speed = max(target_speed, self.min_set_speed_clu)
-            return target_speed
+            if accel < 0.:
+              # target_speed = vEgo + accel  # accel 값은 1키로씩 상승한다.
+              # min_set_speed_clu = 5km
+              target_speed = vEgo + accel  # accel 값은 1키로씩 감소한다. (60,59,58,57)
+              target_speed = max(target_speed, self.min_set_speed_clu)
+              return target_speed
 
       return 0
 
