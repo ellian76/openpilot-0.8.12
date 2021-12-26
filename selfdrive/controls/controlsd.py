@@ -930,6 +930,18 @@ class Controls:
     controlsState.longitudinalActuatorDelayLowerBound = ntune_scc_get('longitudinalActuatorDelayLowerBound')
     controlsState.longitudinalActuatorDelayUpperBound = ntune_scc_get('longitudinalActuatorDelayUpperBound')
 
+
+    # Cruise SET
+    # kph [applyMaxSpeed, cruiseMaxSpeed]
+    controlsState.applyMaxSpeed = float(
+      clip(self.v_cruise_kph, MIN_SET_SPEED_KPH, self.max_speed_clu * self.speed_conv_to_ms * CV.MS_TO_KPH))
+    controlsState.cruiseMaxSpeed = self.v_cruise_kph
+
+    if controlsState.applyMaxSpeed == controlsState.cruiseMaxSpeed:
+      controlsState.vCruise = float(controlsState.cruiseMaxSpeed)
+    elif controlsState.applyMaxSpeed < controlsState.cruiseMaxSpeed:
+      controlsState.vCruise = float(controlsState.applyMaxSpeed)
+
     if self.joystick_mode:
       controlsState.lateralControlState.debugState = lac_log
     elif self.CP.steerControlType == car.CarParams.SteerControlType.angle:
