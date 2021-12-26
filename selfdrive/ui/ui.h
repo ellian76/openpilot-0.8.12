@@ -10,7 +10,7 @@
 #include <QTimer>
 #include <QColor>
 #include <QTransform>
-#include "nanovg.h"
+#include "third_party/nanovg/nanovg.h"
 
 #include "cereal/messaging/messaging.h"
 #include "common/transformations/orientation.hpp"
