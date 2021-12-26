@@ -1528,6 +1528,9 @@ struct Event {
     deviceState @6 :DeviceState;
     logMessage @18 :Text;
 
+    # neokii
+    roadLimitSpeed @85 :RoadLimitSpeed;
+
     # navigation
     navInstruction @82 :NavInstruction;
     navRoute @83 :NavRoute;
