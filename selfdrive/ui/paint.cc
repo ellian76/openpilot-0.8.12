@@ -501,22 +501,6 @@ static void ui_draw_autohold(UIState *s) {
   ui_draw_circle_image(s, center_x, center_y, radius, autohold > 1 ? "autohold_warning" : "autohold_active", s->scene.car_state.getAutoHold());
 }
 
-// bsd left icon bottom left 3
-static void ui_draw_bsd_left(UIState *s) {
-  const int radius = 85;
-  const int center_x = radius + (bdr_s*2);
-  const int center_y = s->fb_h - (footer_h/2) - (radius*4) + 20;
-  ui_draw_circle_image(s, center_x, center_y, radius, "bsd_l", s->scene.car_state.getLeftBlindspot());
-}
-
-// bsd right icon bottom left 3 + radius
-static void ui_draw_bsd_right(UIState *s) {
-  const int radius = 85;
-  const int center_x = radius + (bdr_s*2) + (radius*2);
-  const int center_y = s->fb_h - (footer_h/2) - (radius*4) + 20;
-  ui_draw_circle_image(s, center_x, center_y, radius, "bsd_r", s->scene.car_state.getRightBlindspot());
-}
-
 static void ui_draw_vision_header(UIState *s) {
   NVGpaint gradient = nvgLinearGradient(s->vg, 0, header_h - (header_h / 2.5), 0, header_h,
                                         nvgRGBAf(0, 0, 0, 0.45), nvgRGBAf(0, 0, 0, 0));
@@ -524,57 +508,6 @@ static void ui_draw_vision_header(UIState *s) {
   ui_draw_vision_maxspeed(s);
   ui_draw_vision_speed(s);
   ui_draw_vision_event(s);
-}
-
-// tpms from neokii
-static NVGcolor get_tpms_color(float tpms) {
-    if (tpms < 5 || tpms > 60) // N/A
-        return COLOR_WHITE_ALPHA(200);
-    if (tpms < 31 || tpms > 42)
-        return COLOR_RED_ALPHA(200);
-    return COLOR_WHITE_ALPHA(200);
-}
-
-static std::string get_tpms_text(float tpms) {
-    if (tpms < 5 || tpms > 60)
-        return "";
-    char str[32];
-    snprintf(str, sizeof(str), "%.0f", round(tpms));
-    return std::string(str);
-}
-
-static void ui_draw_tpms(UIState *s) {
-    const UIScene &scene = s->scene;
-    auto tpms = scene.car_state.getTpms();
-    const float fl = tpms.getFl();
-    const float fr = tpms.getFr();
-    const float rl = tpms.getRl();
-    const float rr = tpms.getRr();
-    int margin = 10;
-    int x = s->fb_w - 170;
-    int y = 850;
-    int w = 66;
-    int h = 146;
-    ui_draw_image(s, {x, y, w, h}, "tire_pressure", 0.8f);
-
-    nvgFontSize(s->vg, 50);
-    nvgFontFace(s->vg, "sans-semibold");
-
-    nvgTextAlign(s->vg, NVG_ALIGN_RIGHT);
-    nvgFillColor(s->vg, get_tpms_color(fl));
-    nvgText(s->vg, x-margin, y+45, get_tpms_text(fl).c_str(), NULL);
-
-    nvgTextAlign(s->vg, NVG_ALIGN_LEFT);
-    nvgFillColor(s->vg, get_tpms_color(fr));
-    nvgText(s->vg, x+w+margin, y+45, get_tpms_text(fr).c_str(), NULL);
-
-    nvgTextAlign(s->vg, NVG_ALIGN_RIGHT);
-    nvgFillColor(s->vg, get_tpms_color(rl));
-    nvgText(s->vg, x-margin, y+h-15, get_tpms_text(rl).c_str(), NULL);
-
-    nvgTextAlign(s->vg, NVG_ALIGN_LEFT);
-    nvgFillColor(s->vg, get_tpms_color(rr));
-    nvgText(s->vg, x+w+margin, y+h-15, get_tpms_text(rr).c_str(), NULL);
 }
 
 //START: functions added for the display of various items
@@ -773,11 +706,11 @@ static void ui_draw_vision(UIState *s) {
   ui_draw_scc_gap(s);
   ui_draw_brake(s);
   ui_draw_autohold(s);
-  ui_draw_bsd_left(s);
-  ui_draw_bsd_right(s);
+  //ui_draw_bsd_left(s);
+  //ui_draw_bsd_right(s);
   ui_draw_wifi(s);
   ui_draw_gps(s);
-  ui_draw_tpms(s);
+  //ui_draw_tpms(s);
   ui_draw_extras(s);
   ui_draw_right_info(s);
   ui_draw_bottom_info(s);
