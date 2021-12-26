@@ -252,7 +252,7 @@ static void ui_draw_bottom_info(UIState *s) {
     snprintf(str, sizeof(str),
     "[ %s ] SR[%.2f]",
     lateral_state[lateralControlState],
-    controls_state.getSteerRatio(),
+    controls_state.getSteerRatio()
     //car_params.getMdpsBus(), car_params.getSccBus(),
     //long_state[longControlState],
     //gpsAltitude,
