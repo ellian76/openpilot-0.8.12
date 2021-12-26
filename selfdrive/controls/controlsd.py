@@ -924,12 +924,12 @@ class Controls:
     controlsState.steerActuatorDelay = ntune_common_get('steerActuatorDelay')
 
     # SCC
+    controlsState.distanceGap = ntune_scc_get('distanceGap')
     controlsState.sccGasFactor = ntune_scc_get('sccGasFactor')
     controlsState.sccBrakeFactor = ntune_scc_get('sccBrakeFactor')
     controlsState.sccCurvatureFactor = ntune_scc_get('sccCurvatureFactor')
     controlsState.longitudinalActuatorDelayLowerBound = ntune_scc_get('longitudinalActuatorDelayLowerBound')
     controlsState.longitudinalActuatorDelayUpperBound = ntune_scc_get('longitudinalActuatorDelayUpperBound')
-
 
     # Cruise SET
     # kph [applyMaxSpeed, cruiseMaxSpeed]

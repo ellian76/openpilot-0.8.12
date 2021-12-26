@@ -450,8 +450,6 @@ static void ui_draw_scc_gap(UIState *s) {
 
   auto control_state = (*s->sm)["controlsState"].getControlsState();
   int gap = control_state.getDistanceGap();
-  if(gap < 0)
-    return;
 
   NVGcolor color_bg = COLOR_BLACK_ALPHA(255 * 0.1f);
   nvgBeginPath(s->vg);
@@ -464,17 +462,9 @@ static void ui_draw_scc_gap(UIState *s) {
   if(gap == 0) {
     snprintf(str, sizeof(str), "AUTO");
     textColor = nvgRGBA(120, 255, 120, 200);
-  } else if (gap == 1) {
-    snprintf(str, sizeof(str), "NEAR");
-    textColor = nvgRGBA(120, 255, 120, 200);
-    textSize = 30.f;
-  } else if (gap == 2) {
-    snprintf(str, sizeof(str), "MID");
-    textColor = nvgRGBA(120, 255, 120, 200);
-    textSize = 30.f;
-  } else if (gap == 3) {
-    snprintf(str, sizeof(str), "FAR");
-    textColor = nvgRGBA(120, 255, 120, 200);
+  } else {
+    snprintf(str, sizeof(str), "%d", (int)gap);
+    textColor = COLOR_LIME_ALPHA(200);
     textSize = 30.f;
   }
   nvgTextAlign(s->vg, NVG_ALIGN_CENTER | NVG_ALIGN_MIDDLE);
