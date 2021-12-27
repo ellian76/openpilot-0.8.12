@@ -951,7 +951,7 @@ class Controls:
     if (self.sm.frame % int(50. / DT_CTRL) == 0):
       cp_send = messaging.new_message('carParams')
       cp_send.carParams = self.CP
-    self.pm.send('carParams', cp_send)
+      self.pm.send('carParams', cp_send)
 
     # carControl
     cc_send = messaging.new_message('carControl')
