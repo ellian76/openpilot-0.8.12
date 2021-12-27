@@ -178,13 +178,13 @@ class CarInterface(CarInterfaceBase):
     # MAD_MODE
     if self.CP.enableGasInterceptor:
       if self.CS.adaptive_Cruise and ret.brakePressed:
+        events.add(EventName.pedalPressed)
         self.CS.adaptive_Cruise = False
         self.CS.enable_lkas = True
-        events.add(EventName.pedalPressed)
 
     # handle button presses
     if self.CP.enableGasInterceptor:
-      if not self.CS.main_on:  # lat dis-engage
+      if not self.CS.main_on:  # 메인 버튼 비활성화
         for b in ret.buttonEvents:
           if (b.type == ButtonType.decelCruise and not b.pressed) and not self.CS.adaptive_Cruise:
             self.CS.adaptive_Cruise = True
@@ -206,7 +206,7 @@ class CarInterface(CarInterfaceBase):
             self.CS.enable_lkas = True
             break
       else:  # lat engage
-        # [main_on 활성화]
+        # [main_on 활성화], ASCC 비활성화
         for b in ret.buttonEvents:
           if not self.CS.adaptive_Cruise and (
                   b.type == ButtonType.altButton3 and b.pressed):  # and self.CS.adaptive_Cruise

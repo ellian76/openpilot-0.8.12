@@ -231,33 +231,16 @@ static void ui_draw_bottom_info(UIState *s) {
     //auto car_params = (*s->sm)["carParams"].getCarParams();
     //auto car_state = (*s->sm)["carState"].getCarState();
 
-    //int longControlState = (int)controls_state.getLongControlState();
-    //const char* long_state[] = {"Off", "Pid", "Stopping", "Starting"};
+    int longControlState = (int)controls_state.getLongControlState();
+    const char* long_state[] = {"Off", "Pid", "Stopping", "Starting"};
     int lateralControlState = controls_state.getLateralControlSelect();
     const char* lateral_state[] = {"Pid", "Indi", "Lqr"};
-    //auto gps_ext = s->scene.gps_ext;
-    //float verticalAccuracy = gps_ext.getVerticalAccuracy();
-    //float gpsAltitude = gps_ext.getAltitude();
-    //float gpsAccuracy = gps_ext.getAccuracy();
-    //int gpsSatelliteCount = s->scene.satelliteCount;
-
-    //if(verticalAccuracy == 0 || verticalAccuracy > 100)
-    //    gpsAltitude = 99.99;
-
-    //if (gpsAccuracy > 100)
-    //  gpsAccuracy = 99.99;
-    //else if (gpsAccuracy == 0)
-    //  gpsAccuracy = 99.8;
 
     snprintf(str, sizeof(str),
-    "[ %s ] SR[%.2f]",
+    "[ %s ] Steer Ratio[%.2f] Long State[ %s ]",
     lateral_state[lateralControlState],
-    controls_state.getSteerRatio()
-    //car_params.getMdpsBus(), car_params.getSccBus(),
-    //long_state[longControlState],
-    //gpsAltitude,
-    //gpsAccuracy,
-    //gpsSatelliteCount
+    controls_state.getSteerRatio(),
+    long_state[longControlState]
     );
 
     int x = bdr_s * 2;
@@ -409,7 +392,7 @@ static void ui_draw_vision_event(UIState *s) {
 }
 
 // gps icon upper right
-static void ui_draw_gps(UIState *s) {
+/*static void ui_draw_gps(UIState *s) {
   const int radius = 60;
   const int center_x = s->fb_w - (radius*7);
   const int center_y = radius + 40;
@@ -419,7 +402,7 @@ static void ui_draw_gps(UIState *s) {
   } else {
     ui_draw_circle_image(s, center_x, center_y, radius, "gps", COLOR_BLACK_ALPHA(10), 0.15f);
   }
-}
+}*/
 
 // wifi icon upper right 2
 static void ui_draw_wifi(UIState *s) {
@@ -701,7 +684,7 @@ static void ui_draw_vision(UIState *s) {
   //ui_draw_bsd_left(s);
   //ui_draw_bsd_right(s);
   ui_draw_wifi(s);
-  ui_draw_gps(s);
+  //ui_draw_gps(s);
   //ui_draw_tpms(s);
   ui_draw_extras(s);
   ui_draw_right_info(s);
