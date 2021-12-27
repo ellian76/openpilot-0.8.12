@@ -529,7 +529,8 @@ static void ui_draw_measures_right(UIState *s, int x, int y, int w) {
   NVGcolor lab_color = COLOR_WHITE_ALPHA(200);
   int value_fontSize=60;
   int label_fontSize=40;
-  bool is_enabled = scene.controls_state.getEnabled();
+  //bool is_enabled = scene.controls_state.getEnabled();
+  bool is_enabled = true;
 
   //add CPU temperature average
   if (true) {
