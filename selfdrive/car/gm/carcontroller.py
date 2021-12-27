@@ -4,7 +4,7 @@ from common.numpy_fast import interp, clip
 from selfdrive.config import Conversions as CV
 from selfdrive.car import apply_std_steer_torque_limits, create_gas_interceptor_command
 from selfdrive.car.gm import gmcan
-from selfdrive.car.gm.values import DBC, CanBus, CarControllerParams, MIN_ACC_SPEED, PEDAL_TRANSITION
+from selfdrive.car.gm.values import DBC, CanBus, CarControllerParams
 from opendbc.can.packer import CANPacker
 
 VisualAlert = car.CarControl.HUDControl.VisualAlert
