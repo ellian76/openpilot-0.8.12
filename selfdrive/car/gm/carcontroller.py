@@ -4,7 +4,7 @@ from common.numpy_fast import interp, clip
 from selfdrive.config import Conversions as CV
 from selfdrive.car import apply_std_steer_torque_limits, create_gas_interceptor_command
 from selfdrive.car.gm import gmcan
-from selfdrive.car.gm.values import DBC, CanBus, CarControllerParams
+from selfdrive.car.gm.values import DBC, CanBus, CarControllerParams, MIN_ACC_SPEED, PEDAL_TRANSITION
 from opendbc.can.packer import CANPacker
 
 VisualAlert = car.CarControl.HUDControl.VisualAlert
@@ -99,24 +99,31 @@ class CarController():
       accelMultiplier = 0.425
 
     if not enabled or not CS.adaptive_Cruise or not CS.CP.enableGasInterceptor:
-      comma_pedal = 0.0
+      interceptor_gas_cmd = 0.
     elif CS.adaptive_Cruise:
+      MAX_INTERCEPTOR_GAS = 0.5
+      PEDAL_SCALE = interp(CS.out.vEgo, [0.0, MIN_ACC_SPEED, MIN_ACC_SPEED + PEDAL_TRANSITION], [0.4, 0.5, 0.0])
+      # offset for creep and windbrake
+      pedal_offset = interp(CS.out.vEgo, [0.0, 2.3, MIN_ACC_SPEED + PEDAL_TRANSITION], [-.4, 0.0, 0.2])
+      pedal_command = PEDAL_SCALE * (actuators.accel + pedal_offset)
+      interceptor_gas_cmd = clip(pedal_command, 0., MAX_INTERCEPTOR_GAS)
+
       #minimumPedalOutputBySpeed = interp(CS.out.vEgo, VEL, MIN_PEDAL)
       #pedal_accel = actuators.accel * accelMultiplier
       #comma_pedal = clip(pedal_accel, minimumPedalOutputBySpeed, 1.)
       #comma_pedal, self.accel_steady = accel_hysteresis(comma_pedal, self.accel_steady)
 
       # 이것이 없으면 저속에서 너무 공격적입니다.
-      gas_mult = interp(CS.out.vEgo, [0., 10.], [0.4, 1.0])
+      #gas_mult = interp(CS.out.vEgo, [0., 10.], [0.4, 1.0])
       # apply_gas가 0이면 정확히 0을 보냅니다. 인터셉터는 읽기 값과 apply_gas 사이의 최대값을 보냅니다.
       # 예상치 못한 페달 범위 재조정을 방지합니다.
       # OP 가 활성화되지 않았을 때 0이 아닌 가스를 보내면 PCM이 예상대로 스로틀에 응답하지 않습니다.
       # 활성화할 때.
-      comma_pedal = clip(gas_mult * (gas - brake), 0., 1.)
+      #comma_pedal = clip(gas_mult * (gas - brake), 0., 1.)
 
     if (frame % 4) == 0:
       idx = (frame // 4) % 4
-      can_sends.append(create_gas_interceptor_command(self.packer_pt, comma_pedal, idx))
+      can_sends.append(create_gas_interceptor_command(self.packer_pt, interceptor_gas_cmd, idx))
 
     # Show green icon when LKA torque is applied, and
     # alarming orange icon when approaching torque limit.
