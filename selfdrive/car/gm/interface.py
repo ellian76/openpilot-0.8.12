@@ -206,7 +206,7 @@ class CarInterface(CarInterfaceBase):
             self.CS.enable_lkas = True
             break
       else:  # lat engage
-        # main_on 활성화
+        # [main_on 활성화]
         for b in ret.buttonEvents:
           if not self.CS.adaptive_Cruise and (
                   b.type == ButtonType.altButton3 and b.pressed):  # and self.CS.adaptive_Cruise
@@ -214,13 +214,13 @@ class CarInterface(CarInterfaceBase):
             self.CS.enable_lkas = False
             break
 
-    else:
-      if self.CS.main_on:  # wihtout pedal case
-        self.CS.adaptive_Cruise = False
-        self.CS.enable_lkas = True
-      else:
-        self.CS.adaptive_Cruise = False
-        self.CS.enable_lkas = False
+    #else:
+    #  if self.CS.main_on:  # wihtout pedal case
+    #    self.CS.adaptive_Cruise = False
+    #    self.CS.enable_lkas = True
+    #  else:
+    #    self.CS.adaptive_Cruise = False
+    #    self.CS.enable_lkas = False
 
     #Added by jc01rho inspired by JangPoo
     if self.CS.main_on  and self.CS.enable_lkas and not self.CS.adaptive_Cruise and ret.cruiseState.enabled and ret.gearShifter == GearShifter.drive and ret.vEgo > 2.4 and not ret.brakePressed :

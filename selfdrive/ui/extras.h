@@ -14,6 +14,14 @@ static void ui_draw_extras_limit_speed(UIState *s) {
     int limit_speed = control_state.getRoadLimitSpeed();
     int left_dist = control_state.getRoadLimitSpeedLeftDist();
 
+    auto car_state = (*s->sm)["carState"].getCarState();
+
+    bool mainOn = car_state.getMainOn();
+    bool lkasEnabled = car_state.getLkasEnable();
+    bool adaptiveCruise = car_state.getAdaptiveCruise();
+
+    // ASCC, LKAS
+
     if (activeNDA > 0) {
         int w = 120;
         int h = 54;
@@ -58,6 +66,64 @@ static void ui_draw_extras_limit_speed(UIState *s) {
 
         nvgText(s->vg, x+w/2, y+h + 70, str, NULL);
     }
+
+    // LKAS icon
+    if ( adaptiveCruise ) {
+      drawIcon(p, rect().center().x() - radius / 2 - bdr_s * 2 - 24, radius / 2 + int(bdr_s * 1.5),
+               lat_icon_img, QColor(0, 0, 0, 70), 1.0);
+
+      int w = s->fb_w / 10;
+      int h = s->fb_w / 10;
+      //int x = (s->fb_w + (bdr_s*2))/2 - w/2 - bdr_s;
+      int x = (s->fb_w + (bdr_s*2))/2 - w - bdr_s;
+      int y = 30;
+
+      const char* img = "img_lkas_on";
+      ui_draw_image(s, {x, y, w, h}, img, 1.f);
+    } else {
+
+     drawIcon(p, rect().center().x() - radius / 2 - bdr_s * 2 - 24, radius / 2 + int(bdr_s * 1.5),
+               lat_icon_img, QColor(0, 0, 0, 70), 1.0);
+
+      int w = s->fb_w / 10;
+      int h = s->fb_w / 10;
+      //int x = (s->fb_w + (bdr_s*2))/2 - w/2 - bdr_s;
+      int x = (s->fb_w + (bdr_s*2))/2 - w - bdr_s;
+      int y = 30;
+
+      const char* img = "img_lkas_off";
+      ui_draw_image(s, {x, y, w, h}, img, 1.f);
+    }
+
+    // ASCC icon
+    if ( adaptiveCruise ) {
+      drawIcon(p, rect().center().x() - radius / 2 - bdr_s * 2 - 24, radius / 2 + int(bdr_s * 1.5),
+               lat_icon_img, QColor(0, 0, 0, 70), 1.0);
+
+      int w = s->fb_w / 10;
+      int h = s->fb_w / 10;
+      //int x = (s->fb_w + (bdr_s*2))/2 - w/2 - bdr_s;
+      int x = (s->fb_w + (bdr_s*2)) - w - bdr_s;
+      int y = 30;
+
+      const char* img = "img_ascc_on";
+      ui_draw_image(s, {x, y, w, h}, img, 1.f);
+    } else {
+     drawIcon(p, rect().center().x() - radius / 2 - bdr_s * 2 - 24, radius / 2 + int(bdr_s * 1.5),
+               lat_icon_img, QColor(0, 0, 0, 70), 1.0);
+
+      int w = s->fb_w / 10;
+      int h = s->fb_w / 10;
+      //int x = (s->fb_w + (bdr_s*2))/2 - w/2 - bdr_s;
+      int x = (s->fb_w + (bdr_s*2)) - w - bdr_s;
+      int y = 30;
+
+      const char* img = "img_ascc_off";
+      ui_draw_image(s, {x, y, w, h}, img, 1.f);
+    }
+
+
+
     /*else {
         auto controls_state = (*s->sm)["controlsState"].getControlsState();
         int sccStockCamAct = (int)controls_state.getSccStockCamAct();
