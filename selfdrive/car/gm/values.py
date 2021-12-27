@@ -5,9 +5,6 @@ from selfdrive.car import dbc_dict
 from selfdrive.config import Conversions as CV
 Ecu = car.CarParams.Ecu
 
-MIN_ACC_SPEED = 19. * CV.MPH_TO_MS
-PEDAL_TRANSITION = 10. * CV.MPH_TO_MS
-
 SLOW_ON_CURVES = 1     # 슬로우 커브 사용 유무 (0,1)
 MIN_CURVE_SPEED = 32. * CV.KPH_TO_MS    # 커브 속도 설정
 
@@ -37,7 +34,7 @@ class CarControllerParams():
   # Our controller should still keep the 2 second average above
   # -3.5 m/s^2 as per planner limits
   ACCEL_MAX = 2.0
-  ACCEL_MIN = -4.0
+  ACCEL_MIN = -1.0
   #ACCEL_SCALE = 4.0  # max(ACCEL_MAX, -ACCEL_MIN)
 
   MAX_ACC_REGEN = 1404  # ACC Regen braking is slightly less powerful than max regen paddle
