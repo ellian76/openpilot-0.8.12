@@ -14,11 +14,9 @@ static void ui_draw_extras_limit_speed(UIState *s) {
     int limit_speed = control_state.getRoadLimitSpeed();
     int left_dist = control_state.getRoadLimitSpeedLeftDist();
 
-    auto car_state = (*s->sm)["carState"].getCarState();
-
     //bool mainOn = car_state.getMainOn();
-    bool lkasEnabled = car_state.getLkasEnable();
-    bool adaptiveCruise = car_state.getAdaptiveCruise();
+    bool lkasEnabled = true;
+    bool adaptiveCruise = true;
 
     // ASCC, LKAS
 
