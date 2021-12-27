@@ -191,14 +191,6 @@ class Controls:
     # scc smoother
     self.is_cruise_enabled = False
     self.applyMaxSpeed = 0
-    self.apply_accel = 0.
-    self.fused_accel = 0.
-    self.lead_drel = 0.
-    self.aReqValue = 0.
-    self.aReqValueMin = 0.
-    self.aReqValueMax = 0.
-    self.sccStockCamStatus = 0
-    self.sccStockCamAct = 0
 
     self.mismatch_counter = 0
     self.cruise_mismatch_counter = 0
@@ -323,10 +315,6 @@ class Controls:
       else:
           max_speed_clu = self.kph_to_clu(self.v_cruise_kph)
 
-      # max_speed_log = "{:.1f}/{:.1f}/{:.1f}".format(float(limit_speed),
-      #                                              float(self.curve_speed_ms*self.speed_conv_to_clu),
-      #                                              float(lead_speed))
-
       max_speed_log = ""
 
       if apply_limit_speed >= self.kph_to_clu(30):
@@ -363,12 +351,6 @@ class Controls:
             self.limited_lead = True
       else:
         self.limited_lead = False
-
-      # PSK APPLY MAX SPEED CONTROL ADD
-
-      # control_speed_clu = self.kph_to_clu(ntune_scc_get('applyLimitSpeed'))
-      # if control_speed_clu < max_speed_clu:
-      #    max_speed_clu = min(max_speed_clu, control_speed_clu)
 
       self.update_max_speed(int(max_speed_clu + 0.5), CS)
       # print("update_max_speed() value : ", self.max_speed_clu)
@@ -845,7 +827,7 @@ class Controls:
       left_lane_visible = self.sm['lateralPlan'].lProb > 0.5
       l_lane_change_prob = meta.desirePrediction[Desire.laneChangeLeft - 1]
       r_lane_change_prob = meta.desirePrediction[Desire.laneChangeRight - 1]
-      cameraOffset = ntune_common_get("cameraOffset") + 0.08 if self.wide_camera else ntune_common_get("cameraOffset")
+      cameraOffset = ntune_common_get("cameraOffset")
       l_lane_close = left_lane_visible and (self.sm['modelV2'].laneLines[1].y[0] > -(1.08 + cameraOffset))
       r_lane_close = right_lane_visible and (self.sm['modelV2'].laneLines[2].y[0] < (1.08 - cameraOffset))
 
@@ -898,38 +880,6 @@ class Controls:
     controlsState.engageable = not self.events.any(ET.NO_ENTRY)
     controlsState.longControlState = self.LoC.long_control_state
     controlsState.vPid = float(self.LoC.v_pid)
-    controlsState.vCruise = float(self.applyMaxSpeed if self.CP.openpilotLongitudinalControl else self.v_cruise_kph)
-    controlsState.upAccelCmd = float(self.LoC.pid.p)
-    controlsState.uiAccelCmd = float(self.LoC.pid.i)
-    controlsState.ufAccelCmd = float(self.LoC.pid.f)
-    controlsState.cumLagMs = -self.rk.remaining * 1000.
-    controlsState.startMonoTime = int(start_time * 1e9)
-    controlsState.forceDecel = bool(force_decel)
-    controlsState.canErrorCounter = self.can_error_counter
-
-    controlsState.angleSteers = steer_angle_without_offset * CV.RAD_TO_DEG
-    controlsState.applyAccel = self.apply_accel
-    controlsState.aReqValue = self.aReqValue
-    controlsState.aReqValueMin = self.aReqValueMin
-    controlsState.aReqValueMax = self.aReqValueMax
-
-    # NDA
-    controlsState.roadLimitSpeedActive = road_speed_limiter_get_active()
-    controlsState.roadLimitSpeed = road_limit_speed
-    controlsState.roadLimitSpeedLeftDist = left_dist
-
-    # STEER
-    controlsState.steerRatio = self.VM.sR
-    controlsState.steerRateCost = ntune_common_get('steerRateCost')
-    controlsState.steerActuatorDelay = ntune_common_get('steerActuatorDelay')
-
-    # SCC
-    controlsState.distanceGap = ntune_scc_get('distanceGap')
-    controlsState.sccGasFactor = ntune_scc_get('sccGasFactor')
-    controlsState.sccBrakeFactor = ntune_scc_get('sccBrakeFactor')
-    controlsState.sccCurvatureFactor = ntune_scc_get('sccCurvatureFactor')
-    controlsState.longitudinalActuatorDelayLowerBound = ntune_scc_get('longitudinalActuatorDelayLowerBound')
-    controlsState.longitudinalActuatorDelayUpperBound = ntune_scc_get('longitudinalActuatorDelayUpperBound')
 
     # Cruise SET
     # kph [applyMaxSpeed, cruiseMaxSpeed]
@@ -941,6 +891,33 @@ class Controls:
       controlsState.vCruise = float(controlsState.cruiseMaxSpeed)
     elif controlsState.applyMaxSpeed < controlsState.cruiseMaxSpeed:
       controlsState.vCruise = float(controlsState.applyMaxSpeed)
+
+    controlsState.upAccelCmd = float(self.LoC.pid.p)
+    controlsState.uiAccelCmd = float(self.LoC.pid.i)
+    controlsState.ufAccelCmd = float(self.LoC.pid.f)
+    controlsState.cumLagMs = -self.rk.remaining * 1000.
+    controlsState.startMonoTime = int(start_time * 1e9)
+    #controlsState.forceDecel = bool(force_decel)
+    controlsState.canErrorCounter = self.can_error_counter
+
+    # NDA
+    controlsState.roadLimitSpeedActive = road_speed_limiter_get_active()
+    controlsState.roadLimitSpeed = road_limit_speed
+    controlsState.roadLimitSpeedLeftDist = left_dist
+
+    # STEER
+    controlsState.angleSteers = steer_angle_without_offset * CV.RAD_TO_DEG
+    controlsState.steerRatio = self.VM.sR
+    controlsState.steerRateCost = ntune_common_get('steerRateCost')
+    controlsState.steerActuatorDelay = ntune_common_get('steerActuatorDelay')
+
+    # SCC
+    controlsState.distanceGap = ntune_scc_get('distanceGap')
+    controlsState.sccGasFactor = ntune_scc_get('sccGasFactor')
+    controlsState.sccBrakeFactor = ntune_scc_get('sccBrakeFactor')
+    controlsState.sccCurvatureFactor = ntune_scc_get('sccCurvatureFactor')
+    controlsState.longitudinalActuatorDelayLowerBound = ntune_scc_get('longitudinalActuatorDelayLowerBound')
+    controlsState.longitudinalActuatorDelayUpperBound = ntune_scc_get('longitudinalActuatorDelayUpperBound')
 
     if self.joystick_mode:
       controlsState.lateralControlState.debugState = lac_log
