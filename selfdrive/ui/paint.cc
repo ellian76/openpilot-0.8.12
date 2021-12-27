@@ -237,7 +237,7 @@ static void ui_draw_bottom_info(UIState *s) {
     const char* lateral_state[] = {"Pid", "Indi", "Lqr"};
 
     snprintf(str, sizeof(str),
-    "[ %s ] Steer Ratio[%.2f] Long State[ %s ]",
+    "[ %s ] Steer Ratio[ %.2f ] Long State[ %s ]",
     lateral_state[lateralControlState],
     controls_state.getSteerRatio(),
     long_state[longControlState]
