@@ -24,6 +24,16 @@ def accel_hysteresis(accel, accel_steady):
     return accel, accel_steady
 
 
+def compute_gas_brake(accel, speed):
+  creep_brake = 0.0
+  creep_speed = 2.3
+  creep_brake_value = 0.15
+  if speed < creep_speed:
+    creep_brake = (creep_speed - speed) / creep_speed * creep_brake_value
+  gb = float(accel) / 4.8 - creep_brake
+  return clip(gb, 0.0, 1.0), clip(-gb, 0.0, 1.0)
+
+
 class CarController():
   def __init__(self, dbc_name, CP, VM):
     self.start_time = 0.
@@ -44,6 +54,13 @@ class CarController():
              hud_v_cruise, hud_show_lanes, hud_show_car, hud_alert):
 
     P = self.params
+
+    if enabled:
+      accel = actuators.accel
+      gas, brake = compute_gas_brake(actuators.accel, CS.out.vEgo)
+    else:
+      accel = 0.0
+      gas, brake = 0.0, 0.0
 
     # Send CAN commands.
     can_sends = []
@@ -82,12 +99,20 @@ class CarController():
       accelMultiplier = 0.425
 
     if not enabled or not CS.adaptive_Cruise or not CS.CP.enableGasInterceptor:
-      comma_pedal = 0
+      comma_pedal = 0.0
     elif CS.adaptive_Cruise:
-      minimumPedalOutputBySpeed = interp(CS.out.vEgo, VEL, MIN_PEDAL)
-      pedal_accel = actuators.accel * accelMultiplier
-      comma_pedal = clip(pedal_accel, minimumPedalOutputBySpeed, 1.)
-      comma_pedal, self.accel_steady = accel_hysteresis(comma_pedal, self.accel_steady)
+      #minimumPedalOutputBySpeed = interp(CS.out.vEgo, VEL, MIN_PEDAL)
+      #pedal_accel = actuators.accel * accelMultiplier
+      #comma_pedal = clip(pedal_accel, minimumPedalOutputBySpeed, 1.)
+      #comma_pedal, self.accel_steady = accel_hysteresis(comma_pedal, self.accel_steady)
+
+      # 이것이 없으면 저속에서 너무 공격적입니다.
+      gas_mult = interp(CS.out.vEgo, [0., 10.], [0.4, 1.0])
+      # apply_gas가 0이면 정확히 0을 보냅니다. 인터셉터는 읽기 값과 apply_gas 사이의 최대값을 보냅니다.
+      # 예상치 못한 페달 범위 재조정을 방지합니다.
+      # OP 가 활성화되지 않았을 때 0이 아닌 가스를 보내면 PCM이 예상대로 스로틀에 응답하지 않습니다.
+      # 활성화할 때.
+      comma_pedal = clip(gas_mult * (gas - brake), 0., 1.)
 
     if (frame % 4) == 0:
       idx = (frame // 4) % 4
