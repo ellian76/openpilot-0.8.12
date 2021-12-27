@@ -3,7 +3,7 @@ from cereal import car
 from common.numpy_fast import interp
 from math import fabs
 from selfdrive.config import Conversions as CV
-from selfdrive.car.gm.values import CAR, CruiseButtons, AccState, CarControllerParams
+from selfdrive.car.gm.values import CAR, CruiseButtons, AccState, CarControllerParams, MAD_MODE
 from selfdrive.car import STD_CARGO_KG, scale_rot_inertia, scale_tire_stiffness, gen_empty_fingerprint, get_safety_config
 from selfdrive.car.interfaces import CarInterfaceBase
 from common.params import Params
@@ -174,51 +174,53 @@ class CarInterface(CarInterfaceBase):
     # belowsteerspeed alertevent는 내지 않도록 한다. 텍스트로 표시만 따로 하여 debug ui 출력을 확보한다.
     # if ret.vEgo < self.CP.minSteerSpeed:
     #   events.add(car.CarEvent.EventName.belowSteerSpeed)
+
+    # MAD_MODE
+    #if self.CP.enableGasInterceptor:
+    #  if self.CS.adaptive_Cruise and ret.brakePressed:
+    #    events.add(EventName.pedalPressed)
+    #    self.CS.adaptive_Cruise = False
+    #    self.CS.enable_lkas = True
+
+    # handle button presses
     if self.CP.enableGasInterceptor:
-      if self.CS.adaptive_Cruise and ret.brakePressed:
-        events.add(EventName.pedalPressed)
+      if not self.CS.main_on:  # lat dis-engage
+        for b in ret.buttonEvents:
+          if (b.type == ButtonType.decelCruise and not b.pressed) and not self.CS.adaptive_Cruise:
+            self.CS.adaptive_Cruise = True
+            self.CS.enable_lkas = True
+            events.add(EventName.buttonEnable)
+            break
+          if (b.type == ButtonType.accelCruise and not b.pressed) and not self.CS.adaptive_Cruise:
+            self.CS.adaptive_Cruise = True
+            self.CS.enable_lkas = False
+            events.add(EventName.buttonEnable)
+            break
+          if (b.type == ButtonType.cancel and b.pressed) and self.CS.adaptive_Cruise:
+            self.CS.adaptive_Cruise = False
+            self.CS.enable_lkas = False
+            events.add(EventName.buttonCancel)
+            break
+          if (b.type == ButtonType.altButton3 and b.pressed):  # and self.CS.adaptive_Cruise
+            self.CS.adaptive_Cruise = False
+            self.CS.enable_lkas = True
+            break
+      else:  # lat engage
+        # main_on 활성화
+        for b in ret.buttonEvents:
+          if not self.CS.adaptive_Cruise and (
+                  b.type == ButtonType.altButton3 and b.pressed):  # and self.CS.adaptive_Cruise
+            self.CS.adaptive_Cruise = False
+            self.CS.enable_lkas = False
+            break
+
+    else:
+      if self.CS.main_on:  # wihtout pedal case
         self.CS.adaptive_Cruise = False
         self.CS.enable_lkas = True
-
-      # handle button presses
-      if self.CP.enableGasInterceptor:
-        if not self.CS.main_on:  # lat dis-engage
-          for b in ret.buttonEvents:
-            if (b.type == ButtonType.decelCruise and not b.pressed) and not self.CS.adaptive_Cruise:
-              self.CS.adaptive_Cruise = True
-              self.CS.enable_lkas = True
-              events.add(EventName.buttonEnable)
-              break
-            if (b.type == ButtonType.accelCruise and not b.pressed) and not self.CS.adaptive_Cruise:
-              self.CS.adaptive_Cruise = True
-              self.CS.enable_lkas = False
-              events.add(EventName.buttonEnable)
-              break
-            if (b.type == ButtonType.cancel and b.pressed) and self.CS.adaptive_Cruise:
-              self.CS.adaptive_Cruise = False
-              self.CS.enable_lkas = False
-              events.add(EventName.buttonCancel)
-              break
-            if (b.type == ButtonType.altButton3 and b.pressed):  # and self.CS.adaptive_Cruise
-              self.CS.adaptive_Cruise = False
-              self.CS.enable_lkas = True
-              break
-        else:  # lat engage
-          # main_on 활성화
-          for b in ret.buttonEvents:
-            if not self.CS.adaptive_Cruise and (
-                   b.type == ButtonType.altButton3 and b.pressed):  # and self.CS.adaptive_Cruise
-              self.CS.adaptive_Cruise = False
-              self.CS.enable_lkas = False
-              break
-
       else:
-        if self.CS.main_on:  # wihtout pedal case
-          self.CS.adaptive_Cruise = False
-          self.CS.enable_lkas = True
-        else:
-          self.CS.adaptive_Cruise = False
-          self.CS.enable_lkas = False
+        self.CS.adaptive_Cruise = False
+        self.CS.enable_lkas = False
 
     #Added by jc01rho inspired by JangPoo
     if self.CS.main_on  and self.CS.enable_lkas and not self.CS.adaptive_Cruise and ret.cruiseState.enabled and ret.gearShifter == GearShifter.drive and ret.vEgo > 2.4 and not ret.brakePressed :
