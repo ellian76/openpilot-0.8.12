@@ -244,7 +244,7 @@ class Controls:
       return None
 
   def get_long_lead_safe_speed(self, vEgo, sm, CS):
-      if CS.adaptiveCruise == 1:
+      if CS.adaptiveCruise:
         lead = self.get_lead(sm)
         if lead is not None:
           # d : 비전 레이더 거리
@@ -359,7 +359,7 @@ class Controls:
 
 
   def update_max_speed(self, max_speed, CS):
-    if CS.adaptiveCruise == 0 or self.max_speed_clu <= 0:
+    if not CS.adaptiveCruise or self.max_speed_clu <= 0:
       self.max_speed_clu = max_speed
     else:
       kp = 0.01
@@ -621,11 +621,11 @@ class Controls:
     self.v_cruise_kph_last = self.v_cruise_kph
 
     # if stock cruise is completely disabled, then we can use our own set speed logic
-    if CS.adaptiveCruise == 1:
+    if CS.adaptiveCruise:
       self.v_cruise_kph = update_v_cruise(self.v_cruise_kph, CS.buttonEvents, self.button_timers, self.enabled, self.is_metric)
       if CS.regenPressed:
         self.v_cruise_kph = update_v_cruise_regen(CS.vEgo, self.v_cruise_kph, CS.regenPressed, self.enabled)
-    elif CS.adaptiveCruise == 0 and CS.cruiseState.enabled:
+    elif not CS.adaptiveCruise and CS.cruiseState.enabled:
       self.v_cruise_kph = 30
 
     # decrement the soft disable timer at every step, as it's reset on

@@ -478,18 +478,32 @@ static void ui_draw_autohold(UIState *s) {
 
 // ascc left icon bottom left 3
 static void ui_draw_ascc(UIState *s) {
+  bool ascc_bool = s->scene.car_state.getAdaptiveCruise();
+  int ascc = 0;
+  if (ascc_bool == true) {
+    ascc = 1;
+  } else {
+    ascc = 0;
+  }
   const int radius = 85;
   const int center_x = radius + (bdr_s*2);
   const int center_y = s->fb_h - (footer_h/2) - (radius*4) + 20;
-  ui_draw_circle_image(s, center_x, center_y, radius, "ascc", s->scene.car_state.getAdaptiveCruise());
+  ui_draw_circle_image(s, center_x, center_y, radius, "ascc", ascc);
 }
 
 // lkas right icon bottom left 3 + radius
 static void ui_draw_lkas(UIState *s) {
+  bool lkas_bool = s->scene.car_state.getLkasEnable();
+  int lkas = 0;
+  if (lkas_bool == true) {
+    lkas = 1;
+  } else {
+    lkas = 0;
+  }
   const int radius = 85;
   const int center_x = radius + (bdr_s*2) + (radius*2);
   const int center_y = s->fb_h - (footer_h/2) - (radius*4) + 20;
-  ui_draw_circle_image(s, center_x, center_y, radius, "lkas", s->scene.car_state.getLkasEnable());
+  ui_draw_circle_image(s, center_x, center_y, radius, "lkas", lkas);
 }
 
 static void ui_draw_vision_header(UIState *s) {
