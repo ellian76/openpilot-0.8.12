@@ -16,7 +16,7 @@ static void ui_draw_extras_limit_speed(UIState *s) {
 
     auto car_state = (*s->sm)["carState"].getCarState();
 
-    bool mainOn = car_state.getMainOn();
+    //bool mainOn = car_state.getMainOn();
     bool lkasEnabled = car_state.getLkasEnable();
     bool adaptiveCruise = car_state.getAdaptiveCruise();
 
@@ -68,7 +68,7 @@ static void ui_draw_extras_limit_speed(UIState *s) {
     }
 
     // LKAS icon
-    if ( adaptiveCruise ) {
+    if ( lkasEnabled ) {
       int w = s->fb_w / 10;
       int h = s->fb_w / 10;
       //int x = (s->fb_w + (bdr_s*2))/2 - w/2 - bdr_s;
