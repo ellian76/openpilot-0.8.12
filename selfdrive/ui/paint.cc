@@ -481,7 +481,7 @@ static void ui_draw_ascc(UIState *s) {
   const int radius = 85;
   const int center_x = radius + (bdr_s*2);
   const int center_y = s->fb_h - (footer_h/2) - (radius*4) + 20;
-  ui_draw_circle_image(s, center_x, center_y, radius, "ascc", s->scene.car_state.getLeftBlindspot());
+  ui_draw_circle_image(s, center_x, center_y, radius, "ascc", s->scene.car_state.getAdaptiveCruise());
 }
 
 // lkas right icon bottom left 3 + radius
@@ -489,7 +489,7 @@ static void ui_draw_lkas(UIState *s) {
   const int radius = 85;
   const int center_x = radius + (bdr_s*2) + (radius*2);
   const int center_y = s->fb_h - (footer_h/2) - (radius*4) + 20;
-  ui_draw_circle_image(s, center_x, center_y, radius, "lkas", s->scene.car_state.getRightBlindspot());
+  ui_draw_circle_image(s, center_x, center_y, radius, "lkas", s->scene.car_state.getLkasEnable());
 }
 
 static void ui_draw_vision_header(UIState *s) {

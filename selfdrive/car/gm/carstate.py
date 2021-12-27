@@ -18,8 +18,19 @@ class CarState(CarStateBase):
 
   def update(self, pt_cp, loopback_cp):
     ret = car.CarState.new_message()
-    ret.adaptiveCruise = self.adaptive_Cruise
-    ret.lkasEnable = self.enable_lkas
+
+    if self.adaptive_Cruise:
+      ret.adaptiveCruise = 1
+    else:
+      ret.adaptiveCruise = 0
+
+    if self.enable_lkas:
+      ret.lkasEnable = 1
+    else:
+      ret.lkasEnable = 0
+
+    #ret.adaptiveCruise = self.adaptive_Cruise
+    #ret.lkasEnable = self.enable_lkas
     self.prev_cruise_buttons = self.cruise_buttons
     self.cruise_buttons = pt_cp.vl["ASCMSteeringButton"]["ACCButtons"]
 
