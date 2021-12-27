@@ -69,9 +69,6 @@ static void ui_draw_extras_limit_speed(UIState *s) {
 
     // LKAS icon
     if ( adaptiveCruise ) {
-      drawIcon(p, rect().center().x() - radius / 2 - bdr_s * 2 - 24, radius / 2 + int(bdr_s * 1.5),
-               lat_icon_img, QColor(0, 0, 0, 70), 1.0);
-
       int w = s->fb_w / 10;
       int h = s->fb_w / 10;
       //int x = (s->fb_w + (bdr_s*2))/2 - w/2 - bdr_s;
@@ -81,10 +78,6 @@ static void ui_draw_extras_limit_speed(UIState *s) {
       const char* img = "img_lkas_on";
       ui_draw_image(s, {x, y, w, h}, img, 1.f);
     } else {
-
-     drawIcon(p, rect().center().x() - radius / 2 - bdr_s * 2 - 24, radius / 2 + int(bdr_s * 1.5),
-               lat_icon_img, QColor(0, 0, 0, 70), 1.0);
-
       int w = s->fb_w / 10;
       int h = s->fb_w / 10;
       //int x = (s->fb_w + (bdr_s*2))/2 - w/2 - bdr_s;
@@ -97,9 +90,6 @@ static void ui_draw_extras_limit_speed(UIState *s) {
 
     // ASCC icon
     if ( adaptiveCruise ) {
-      drawIcon(p, rect().center().x() - radius / 2 - bdr_s * 2 - 24, radius / 2 + int(bdr_s * 1.5),
-               lat_icon_img, QColor(0, 0, 0, 70), 1.0);
-
       int w = s->fb_w / 10;
       int h = s->fb_w / 10;
       //int x = (s->fb_w + (bdr_s*2))/2 - w/2 - bdr_s;
@@ -109,9 +99,6 @@ static void ui_draw_extras_limit_speed(UIState *s) {
       const char* img = "img_ascc_on";
       ui_draw_image(s, {x, y, w, h}, img, 1.f);
     } else {
-     drawIcon(p, rect().center().x() - radius / 2 - bdr_s * 2 - 24, radius / 2 + int(bdr_s * 1.5),
-               lat_icon_img, QColor(0, 0, 0, 70), 1.0);
-
       int w = s->fb_w / 10;
       int h = s->fb_w / 10;
       //int x = (s->fb_w + (bdr_s*2))/2 - w/2 - bdr_s;
