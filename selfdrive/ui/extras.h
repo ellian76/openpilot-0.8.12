@@ -14,12 +14,6 @@ static void ui_draw_extras_limit_speed(UIState *s) {
     int limit_speed = control_state.getRoadLimitSpeed();
     int left_dist = control_state.getRoadLimitSpeedLeftDist();
 
-    //bool mainOn = car_state.getMainOn();
-    bool lkasEnabled = true;
-    bool adaptiveCruise = true;
-
-    // ASCC, LKAS
-
     if (activeNDA > 0) {
         int w = 120;
         int h = 54;
@@ -65,80 +59,6 @@ static void ui_draw_extras_limit_speed(UIState *s) {
         nvgText(s->vg, x+w/2, y+h + 70, str, NULL);
     }
 
-    // LKAS icon
-    if ( lkasEnabled ) {
-      int w = s->fb_w / 10;
-      int h = s->fb_w / 10;
-      //int x = (s->fb_w + (bdr_s*2))/2 - w/2 - bdr_s;
-      int x = (s->fb_w + (bdr_s*2))/2 - w - bdr_s;
-      int y = 30;
-
-      const char* img = "img_lkas_on";
-      ui_draw_image(s, {x, y, w, h}, img, 1.f);
-    } else {
-      int w = s->fb_w / 10;
-      int h = s->fb_w / 10;
-      //int x = (s->fb_w + (bdr_s*2))/2 - w/2 - bdr_s;
-      int x = (s->fb_w + (bdr_s*2))/2 - w - bdr_s;
-      int y = 30;
-
-      const char* img = "img_lkas_off";
-      ui_draw_image(s, {x, y, w, h}, img, 1.f);
-    }
-
-    // ASCC icon
-    if ( adaptiveCruise ) {
-      int w = s->fb_w / 10;
-      int h = s->fb_w / 10;
-      //int x = (s->fb_w + (bdr_s*2))/2 - w/2 - bdr_s;
-      int x = (s->fb_w + (bdr_s*2)) - w - bdr_s;
-      int y = 30;
-
-      const char* img = "img_ascc_on";
-      ui_draw_image(s, {x, y, w, h}, img, 1.f);
-    } else {
-      int w = s->fb_w / 10;
-      int h = s->fb_w / 10;
-      //int x = (s->fb_w + (bdr_s*2))/2 - w/2 - bdr_s;
-      int x = (s->fb_w + (bdr_s*2)) - w - bdr_s;
-      int y = 30;
-
-      const char* img = "img_ascc_off";
-      ui_draw_image(s, {x, y, w, h}, img, 1.f);
-    }
-
-
-
-    /*else {
-        auto controls_state = (*s->sm)["controlsState"].getControlsState();
-        int sccStockCamAct = (int)controls_state.getSccStockCamAct();
-        int sccStockCamStatus = (int)controls_state.getSccStockCamStatus();
-
-        if (sccStockCamAct == 2 && sccStockCamStatus == 2) {
-            int w = s->fb_w / 10;
-            int h = s->fb_w / 10;
-            int x = (bdr_s*2) + 200 + s->fb_w / 25;
-            int y = 30;
-            char str[32];
-
-            nvgBeginPath(s->vg);
-            nvgRoundedRect(s->vg, x, y, w, h, s->fb_w / 9);
-            nvgStrokeColor(s->vg, COLOR_RED_ALPHA(200));
-            nvgStrokeWidth(s->vg, s->fb_w / 72);
-            nvgStroke(s->vg);
-
-            NVGcolor fillColor = COLOR_BLACK_ALPHA(50);
-            nvgFillColor(s->vg, fillColor);
-            nvgFill(s->vg);
-            nvgFillColor(s->vg, COLOR_WHITE_ALPHA(250));
-
-            nvgFontSize(s->vg, s->fb_w / 15);
-            nvgFontFace(s->vg, "sans-bold");
-            nvgTextAlign(s->vg, NVG_ALIGN_CENTER | NVG_ALIGN_MIDDLE);
-
-            nvgText(s->vg, x+w/2, y+h/2, "CAM", NULL);
-        }
-    }*/
 }
 
 static void ui_draw_extras(UIState *s) {
