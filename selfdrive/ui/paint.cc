@@ -783,10 +783,6 @@ void ui_nvg_init(UIState *s) {
     {"img_hda", "../assets/img_hda.png"},
     {"custom_lead_vision", "../assets/custom_lead_vision.png"},
     {"custom_lead_radar", "../assets/custom_lead_radar.png"},
-    {"img_ascc_on", "../assets/img_ascc_on.png"},
-    {"img_ascc_off", "../assets/img_ascc_off.png"},
-    {"img_lkas_on", "../assets/img_lkas_on.png"},
-    {"img_lkas_off", "../assets/img_lkas_off.png"},
   };
   for (auto [name, file] : images) {
     s->images[name] = nvgCreateImage(s->vg, file, 1);
