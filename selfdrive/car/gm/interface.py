@@ -178,7 +178,7 @@ class CarInterface(CarInterfaceBase):
     # MAD_MODE
     if self.CP.enableGasInterceptor:
       if self.CS.adaptive_Cruise and ret.brakePressed:
-        events.add(EventName.pedalPressed)
+        #events.add(EventName.pedalPressed)
         self.CS.adaptive_Cruise = False
         self.CS.enable_lkas = True
 
