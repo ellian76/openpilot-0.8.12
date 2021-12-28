@@ -496,7 +496,7 @@ static void ui_draw_ascc(UIState *s) {
 
   int ascc = 0;
   if(acc == 1 && lkas == 1) {
-    ascc = 1
+    ascc = 1;
   }else {
     ascc = 0;
   }
