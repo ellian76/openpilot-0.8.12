@@ -586,6 +586,8 @@ struct ControlsState @0x97ff69c53601abf1 {
   # add ...
   lateralControlSelect  @78 :UInt8;
   distanceGap @79 :Int16;
+  adaptiveCruise @80 :Int16;
+
 
   # UI alerts
   alertText1 @24 :Text;

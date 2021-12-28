@@ -7,6 +7,8 @@ from selfdrive.car.gm.values import CAR, CruiseButtons, AccState, CarControllerP
 from selfdrive.car import STD_CARGO_KG, scale_rot_inertia, scale_tire_stiffness, gen_empty_fingerprint, get_safety_config
 from selfdrive.car.interfaces import CarInterfaceBase
 from common.params import Params
+from selfdrive.psk_control.psk_control import toggleAcc
+
 GearShifter = car.CarState.GearShifter
 ButtonType = car.CarState.ButtonEvent.Type
 EventName = car.CarEvent.EventName
@@ -176,11 +178,11 @@ class CarInterface(CarInterfaceBase):
     #   events.add(car.CarEvent.EventName.belowSteerSpeed)
 
     # MAD_MODE
-    if self.CP.enableGasInterceptor:
-      if self.CS.adaptive_Cruise and ret.brakePressed:
-        #events.add(EventName.pedalPressed)
-        self.CS.adaptive_Cruise = False
-        self.CS.enable_lkas = True
+    #if self.CP.enableGasInterceptor:
+    #  if self.CS.adaptive_Cruise and ret.brakePressed:
+    #    events.add(EventName.pedalPressed)
+    #    self.CS.adaptive_Cruise = False
+    #    self.CS.enable_lkas = True
 
     # handle button presses
     if self.CP.enableGasInterceptor:
@@ -196,15 +198,19 @@ class CarInterface(CarInterfaceBase):
             self.CS.enable_lkas = True
             events.add(EventName.buttonEnable)
             break
-          if (b.type == ButtonType.cancel and b.pressed) and self.CS.adaptive_Cruise:
-            self.CS.adaptive_Cruise = False
-            self.CS.enable_lkas = True
-            events.add(EventName.buttonCancel)
-            break
-          if (b.type == ButtonType.altButton3 and b.pressed):  # and self.CS.adaptive_Cruise
-            self.CS.adaptive_Cruise = False
-            self.CS.enable_lkas = True
-            break
+          if (b.type == ButtonType.cancel and b.pressed):
+            toggleAcc()
+            events.add(EventName.buttonEnable)
+
+          #if (b.type == ButtonType.cancel and b.pressed) and self.CS.adaptive_Cruise:
+          #  self.CS.adaptive_Cruise = False
+          #  self.CS.enable_lkas = True
+          #  events.add(EventName.buttonCancel)
+          #  break
+          #if (b.type == ButtonType.altButton3 and b.pressed):  # and self.CS.adaptive_Cruise
+          #  self.CS.adaptive_Cruise = False
+          #  self.CS.enable_lkas = True
+          #  break
       else:  # lat engage
         # [main_on 활성화], ASCC 비활성화
         for b in ret.buttonEvents:

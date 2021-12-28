@@ -6,6 +6,7 @@ from selfdrive.car import apply_std_steer_torque_limits, create_gas_interceptor_
 from selfdrive.car.gm import gmcan
 from selfdrive.car.gm.values import DBC, CanBus, CarControllerParams
 from opendbc.can.packer import CANPacker
+from selfdrive.ntune import ntune_scc_get
 
 VisualAlert = car.CarControl.HUDControl.VisualAlert
 
@@ -88,30 +89,22 @@ class CarController():
 
       can_sends.append(gmcan.create_steering_control(self.packer_pt, CanBus.POWERTRAIN, apply_steer, idx, lkas_enabled))
 
-    # Pedal/Regen
-    comma_pedal = 0  #for supress linter error.
-    accelMultiplier = 0.475 #default initializer.
-    if CS.out.vEgo * CV.MS_TO_KPH < 10 :
-      accelMultiplier = 0.375
-    elif CS.out.vEgo * CV.MS_TO_KPH < 40 :
-      accelMultiplier = 0.485
-    else : # above 40 km/h
-      accelMultiplier = 0.425
+    if CS.CP.enableGasInterceptor:
 
-    if not enabled or not CS.adaptive_Cruise or not CS.CP.enableGasInterceptor:
-      comma_pedal = 0.
-    elif CS.adaptive_Cruise:
-      # 이것이 없으면 저속에서 너무 공격적입니다.
-      gas_mult = interp(CS.out.vEgo, [0., 10.], [0.4, 1.0])
-      # apply_gas가 0이면 정확히 0을 보냅니다. 인터셉터는 읽기 값과 apply_gas 사이의 최대값을 보냅니다.
-      # 예상치 못한 페달 범위 재조정을 방지합니다.
-      # OP 가 활성화되지 않았을 때 0이 아닌 가스를 보내면 PCM이 예상대로 스로틀에 응답하지 않습니다.
-      # 활성화할 때.
-      comma_pedal = clip(gas_mult * (gas - brake), 0., 1.)
+      if not enabled or not CS.adaptive_Cruise or ntune_scc_get('adaptiveCruise') == 0:
+        comma_pedal = 0.
+      elif CS.adaptive_Cruise and ntune_scc_get('adaptiveCruise') == 1:
+        # 이것이 없으면 저속에서 너무 공격적입니다.
+        gas_mult = interp(CS.out.vEgo, [0., 10.], [0.4, 1.0])
+        # apply_gas가 0이면 정확히 0을 보냅니다. 인터셉터는 읽기 값과 apply_gas 사이의 최대값을 보냅니다.
+        # 예상치 못한 페달 범위 재조정을 방지합니다.
+        # OP 가 활성화되지 않았을 때 0이 아닌 가스를 보내면 PCM이 예상대로 스로틀에 응답하지 않습니다.
+        # 활성화할 때.
+        comma_pedal = clip(gas_mult * (gas - brake), 0., 1.)
 
-    if (frame % 4) == 0:
-      idx = (frame // 4) % 4
-      can_sends.append(create_gas_interceptor_command(self.packer_pt, comma_pedal, idx))
+      if (frame % 4) == 0:
+        idx = (frame // 4) % 4
+        can_sends.append(create_gas_interceptor_command(self.packer_pt, comma_pedal, idx))
 
     # Show green icon when LKA torque is applied, and
     # alarming orange icon when approaching torque limit.

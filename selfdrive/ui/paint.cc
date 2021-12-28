@@ -477,22 +477,19 @@ static void ui_draw_autohold(UIState *s) {
 }
 
 // ascc left icon bottom left 3
-static void ui_draw_ascc(UIState *s) {
-  bool ascc_bool = s->scene.car_state.getAdaptiveCruise();
-  int ascc = 0;
-  if (ascc_bool == true) {
-    ascc = 1;
-  } else {
-    ascc = 0;
-  }
+static void ui_draw_acc(UIState *s) {
+  auto control_state = (*s->sm)["controlsState"].getControlsState();
+  int acc = control_state.getAdaptiveCruise();
+  if(acc < 0)
+    return;
   const int radius = 85;
   const int center_x = radius + (bdr_s*2);
   const int center_y = s->fb_h - (footer_h/2) - (radius*4) + 20;
-  ui_draw_circle_image(s, center_x, center_y, radius, "ascc", ascc);
+  ui_draw_circle_image(s, center_x, center_y, radius, "acc", acc);
 }
 
 // lkas right icon bottom left 3 + radius
-static void ui_draw_lkas(UIState *s) {
+/*static void ui_draw_lkas(UIState *s) {
   bool lkas_bool = s->scene.car_state.getLkasEnable();
   int lkas = 0;
   if (lkas_bool == true) {
@@ -504,7 +501,7 @@ static void ui_draw_lkas(UIState *s) {
   const int center_x = radius + (bdr_s*2) + (radius*2);
   const int center_y = s->fb_h - (footer_h/2) - (radius*4) + 20;
   ui_draw_circle_image(s, center_x, center_y, radius, "lkas", lkas);
-}
+}*/
 
 static void ui_draw_vision_header(UIState *s) {
   NVGpaint gradient = nvgLinearGradient(s->vg, 0, header_h - (header_h / 2.5), 0, header_h,
@@ -712,8 +709,8 @@ static void ui_draw_vision(UIState *s) {
   ui_draw_scc_gap(s);
   ui_draw_brake(s);
   ui_draw_autohold(s);
-  ui_draw_ascc(s);
-  ui_draw_lkas(s);
+  ui_draw_acc(s);
+  //ui_draw_lkas(s);
   ui_draw_wifi(s);
   //ui_draw_gps(s);
   //ui_draw_tpms(s);
@@ -797,8 +794,7 @@ void ui_nvg_init(UIState *s) {
     {"img_hda", "../assets/img_hda.png"},
     {"custom_lead_vision", "../assets/custom_lead_vision.png"},
     {"custom_lead_radar", "../assets/custom_lead_radar.png"},
-    {"ascc", "../assets/img_lat_icon.png"},
-    {"lkas", "../assets/img_long.png"},
+    {"acc", "../assets/img_lat_icon.png"},
   };
   for (auto [name, file] : images) {
     s->images[name] = nvgCreateImage(s->vg, file, 1);

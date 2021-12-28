@@ -539,6 +539,7 @@ class Controls:
         self.events.add(EventName.processNotRunning)
 
     # Only allow engagement with brake pressed when stopped behind another stopped car
+    # 정차한 다른 차 뒤에 정차할 때만 브레이크를 밟은 상태로 맞물릴 수 있습니다.
     speeds = self.sm['longitudinalPlan'].speeds
     if len(speeds) > 1:
       v_future = speeds[-1]
@@ -913,6 +914,7 @@ class Controls:
     controlsState.steerActuatorDelay = ntune_common_get('steerActuatorDelay')
 
     # SCC
+    controlsState.adaptiveCruise = ntune_scc_get('adaptiveCruise')
     controlsState.distanceGap = ntune_scc_get('distanceGap')
     controlsState.sccGasFactor = ntune_scc_get('sccGasFactor')
     controlsState.sccBrakeFactor = ntune_scc_get('sccBrakeFactor')
