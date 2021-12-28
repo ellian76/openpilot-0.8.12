@@ -51,9 +51,10 @@ int cam_can_bus = -1;
 int bus_camera = -1;
 int bus_vehicle = -1;
 
-static int gm_rx_hook(CAN_FIFOMailBox_TypeDef *to_push) {
 
-  bool valid = addr_safety_check(to_push, &gm_rx_checks, NULL, NULL, NULL);
+static int gm_rx_hook(CANPacket_t *to_push) {
+
+ bool valid = addr_safety_check(to_push, &gm_rx_checks, NULL, NULL, NULL);
 
   int addr = GET_ADDR(to_push);
   int bus = GET_BUS(to_push);
@@ -118,75 +119,125 @@ static int gm_rx_hook(CAN_FIFOMailBox_TypeDef *to_push) {
     generic_rx_checks(addr == MSG_TX_LKA);
   }
   return valid;
+/////////////////������ 189�� ���� �����ϰ������� ���� ����ϴ� �Ǵ��߿��� 0x189(393) �� ���� ���� �����Ǿ�����. �׷��� ���� ������ gm_rx_hook ���� �е� �˻� ����
+/////////////////���Ŀ� �����Կ��� Ȯ�� �ʿ�
+    // exit controls on regen paddle
+//    if (addr == 189) {
+//      bool regen = GET_BYTE(to_push, 0) & 0x20U;
+//      if (regen) {
+//        controls_allowed = 1;
+//      }
+//    }
+
 }
 
-static bool gm_steering_check(int desired_torque) {
-  bool violation = false;
-  uint32_t ts = microsecond_timer_get();
+// all commands: gas/regen, friction brake and steering
+// if controls_allowed and no pedals pressed
+//     allow all commands up to limit
+// else
+//     block all commands that produce actuation
 
-  if (controls_allowed) {
-    // *** global torque limit check ***
-    violation |= max_limit_check(desired_torque, GM_MAX_STEER, -GM_MAX_STEER);
-
-    // *** torque rate limit check ***
-    violation |= driver_limit_check(desired_torque, desired_torque_last, &torque_driver,
-      GM_MAX_STEER, GM_MAX_RATE_UP, GM_MAX_RATE_DOWN,
-      GM_DRIVER_TORQUE_ALLOWANCE, GM_DRIVER_TORQUE_FACTOR);
-
-    // used next time
-    desired_torque_last = desired_torque;
-
-    // *** torque real time rate limit check ***
-    violation |= rt_rate_limit_check(desired_torque, rt_torque_last, GM_MAX_RT_DELTA);
-
-    // every RT_INTERVAL set the new limits
-    uint32_t ts_elapsed = get_ts_elapsed(ts, ts_last);
-    if (ts_elapsed > GM_RT_INTERVAL) {
-      rt_torque_last = desired_torque;
-      ts_last = ts;
-    }
-  }
-
-  // no torque if controls is not allowed
-  if (!controls_allowed && (desired_torque != 0)) {
-    violation = true;
-  }
-
-  // reset to 0 if either controls is not allowed or there's a violation
-  if (violation || !controls_allowed) {
-    desired_torque_last = 0;
-    rt_torque_last = 0;
-    ts_last = ts;
-  }
-
-  return violation;
-}
-
-
-static int gm_tx_hook(CAN_FIFOMailBox_TypeDef *to_send) {
+static int gm_tx_hook(CANPacket_t *to_send) {
 
   int tx = 1;
   int addr = GET_ADDR(to_send);
 
-  if (!msg_allowed(to_send, GM_TX_MSGS, sizeof(GM_TX_MSGS)/sizeof(GM_TX_MSGS[0])) || relay_malfunction) {
+  if (!msg_allowed(to_send, GM_TX_MSGS, sizeof(GM_TX_MSGS)/sizeof(GM_TX_MSGS[0]))) {
     tx = 0;
   }
 
-  // GAS: Interceptor safety check
+  // disallow actuator commands if gas or brake (with vehicle moving) are pressed
+  // and the the latching controls_allowed flag is True
+  int pedal_pressed = brake_pressed_prev && vehicle_moving;
+  bool unsafe_allow_gas = unsafe_mode & UNSAFE_DISABLE_DISENGAGE_ON_GAS;
+  if (!unsafe_allow_gas) {
+    pedal_pressed = pedal_pressed || gas_pressed_prev;
+  }
+  bool current_controls_allowed = controls_allowed; // && !pedal_pressed;
+
+  // GAS: safety check (interceptor)
   if (addr == MSG_TX_PEDAL) {
-    if (!controls_allowed) {
+    if (!current_controls_allowed) {
       if (GET_BYTE(to_send, 0) || GET_BYTE(to_send, 1)) {
         tx = 0;
       }
     }
   }
 
+  // BRAKE: safety check
+//  if (addr == 789) {
+//    int brake = ((GET_BYTE(to_send, 0) & 0xFU) << 8) + GET_BYTE(to_send, 1);
+//    brake = (0x1000 - brake) & 0xFFF;
+//    if (!current_controls_allowed) {
+//      if (brake != 0) {
+//        tx = 0;
+//      }
+//    }
+//    if (brake > GM_MAX_BRAKE) {
+//      tx = 0;
+//    }
+//  }
+
   // LKA STEER: safety check
   if (addr == MSG_TX_LKA) {
     int desired_torque = ((GET_BYTE(to_send, 0) & 0x7U) << 8) + GET_BYTE(to_send, 1);
+    uint32_t ts = microsecond_timer_get();
+    bool violation = 0;
     desired_torque = to_signed(desired_torque, 11);
 
-    if (gm_steering_check(desired_torque)) {
+    if (current_controls_allowed) {
+
+      // *** global torque limit check ***
+      violation |= max_limit_check(desired_torque, GM_MAX_STEER, -GM_MAX_STEER);
+
+      // *** torque rate limit check ***
+      violation |= driver_limit_check(desired_torque, desired_torque_last, &torque_driver,
+        GM_MAX_STEER, GM_MAX_RATE_UP, GM_MAX_RATE_DOWN,
+        GM_DRIVER_TORQUE_ALLOWANCE, GM_DRIVER_TORQUE_FACTOR);
+
+      // used next time
+      desired_torque_last = desired_torque;
+
+      // *** torque real time rate limit check ***
+      violation |= rt_rate_limit_check(desired_torque, rt_torque_last, GM_MAX_RT_DELTA);
+
+      // every RT_INTERVAL set the new limits
+      uint32_t ts_elapsed = get_ts_elapsed(ts, ts_last);
+      if (ts_elapsed > GM_RT_INTERVAL) {
+        rt_torque_last = desired_torque;
+        ts_last = ts;
+      }
+    }
+
+    // no torque if controls is not allowed
+    if (!current_controls_allowed && (desired_torque != 0)) {
+      violation = 1;
+    }
+
+    // reset to 0 if either controls is not allowed or there's a violation
+    if (violation || !current_controls_allowed) {
+      desired_torque_last = 0;
+      rt_torque_last = 0;
+      ts_last = ts;
+    }
+
+//    if (violation) {
+//      tx = 0;
+//    }
+  }
+
+  // GAS/REGEN: safety check
+  if (addr == 715) {
+    int gas_regen = ((GET_BYTE(to_send, 2) & 0x7FU) << 5) + ((GET_BYTE(to_send, 3) & 0xF8U) >> 3);
+    // Disabled message is !engaged with gas
+    // value that corresponds to max regen.
+    if (!current_controls_allowed) {
+      bool apply = GET_BYTE(to_send, 0) & 1U;
+      if (apply || (gas_regen != GM_MAX_REGEN)) {
+        tx = 0;
+      }
+    }
+    if (gas_regen > GM_MAX_GAS) {
       tx = 0;
     }
   }
@@ -195,7 +246,54 @@ static int gm_tx_hook(CAN_FIFOMailBox_TypeDef *to_send) {
   return tx;
 }
 
-static int gm_fwd_hook(int bus_num, CAN_FIFOMailBox_TypeDef *to_fwd) {
+static int gm_fwd_hook(int bus_num, CANPacket_t *to_fwd) {
+
+//  int bus_fwd = -1;
+//
+//  if (gm_allow_fwd && !gm_block_fwd) {
+//    if (bus_num == 0) {
+//      // TODO: Catch message 388 and edit the HandsOffSWlDetectionStatus to 1 (0 is hands off)
+//      // Note: Blocking 388 causes error message when pressing LKAS button
+//      bus_fwd = gm_camera_bus;
+//    }
+//    else if (bus_num == gm_camera_bus) {
+//      int addr = GET_ADDR(to_fwd);
+//      // block stock lkas messages and stock acc messages (if OP is doing ACC)
+//      //TODO: Blocking stock camera ACC will need to be an option
+//      int is_lkas_msg = (addr == 384);
+//      int is_acc_msg = false;
+//      //int is_acc_msg = (addr == 0x343);
+//      int block_msg = is_lkas_msg || is_acc_msg;
+//      if (!block_msg) {
+//        bus_fwd = 0;
+//      }
+//    }
+//  }
+//  else {
+//    // Evaluate traffic to determine if forwarding should be enabled (only camera on bus 2)
+//    if (!gm_allow_fwd && !gm_block_fwd && bus_num == gm_camera_bus) {
+//      int addr = GET_ADDR(to_fwd);
+//      int len = GET_LEN(to_fwd);
+//
+//      if ((addr == 384 && len != 4) //chassis bus has 384 of different size
+//        || (addr == 1120) // F_LRR_Obj_Header from object bus
+//        || (addr == 784) // ASCMHeadlight from object bus
+//        || (addr == 309) // LHT_CameraObjConfirmation_FO from object bus
+//        || (addr == 192) // Unknown id only on chassis bus
+//      ) {
+//        gm_block_fwd = true;
+//      }
+//      else if (addr == 384 && len == 4) {
+//        gm_good_cam_cnt++;
+//      }
+//
+//      if (gm_good_cam_cnt > 10) {
+//        gm_allow_fwd = true;
+//      }
+//    }
+//  }
+//
+//  return bus_fwd;
   int bus_fwd = -1;
   int addr = GET_ADDR(to_fwd);
 
