@@ -477,15 +477,34 @@ static void ui_draw_autohold(UIState *s) {
 }
 
 // ascc left icon bottom left 3
-static void ui_draw_acc(UIState *s) {
-  auto control_state = (*s->sm)["controlsState"].getControlsState();
-  int acc = control_state.getAdaptiveCruise();
-  if(acc < 0)
-    return;
+static void ui_draw_ascc(UIState *s) {
+  bool acc_bool = s->scene.car_state.getAdaptiveCruise();
+  int acc = 0;
+  if (acc_bool == true) {
+    acc = 1;
+  } else {
+    acc = 0;
+  }
+
+  bool lkas_bool = s->scene.car_state.getLkasEnable();
+  int lkas = 0;
+  if (lkas_bool == true) {
+    lkas = 1;
+  } else {
+    lkas = 0;
+  }
+
+  int ascc = 0;
+  if(acc == 1 && lkas == 1) {
+    ascc = 1
+  }else {
+    ascc = 0;
+  }
+
   const int radius = 85;
   const int center_x = radius + (bdr_s*2);
   const int center_y = s->fb_h - (footer_h/2) - (radius*4) + 20;
-  ui_draw_circle_image(s, center_x, center_y, radius, "acc", acc);
+  ui_draw_circle_image(s, center_x, center_y, radius, "ascc", ascc);
 }
 
 // lkas right icon bottom left 3 + radius
@@ -709,7 +728,7 @@ static void ui_draw_vision(UIState *s) {
   ui_draw_scc_gap(s);
   ui_draw_brake(s);
   ui_draw_autohold(s);
-  ui_draw_acc(s);
+  ui_draw_ascc(s);
   //ui_draw_lkas(s);
   ui_draw_wifi(s);
   //ui_draw_gps(s);
@@ -794,7 +813,7 @@ void ui_nvg_init(UIState *s) {
     {"img_hda", "../assets/img_hda.png"},
     {"custom_lead_vision", "../assets/custom_lead_vision.png"},
     {"custom_lead_radar", "../assets/custom_lead_radar.png"},
-    {"acc", "../assets/img_lat_icon.png"},
+    {"ascc", "../assets/img_lat_icon.png"},
   };
   for (auto [name, file] : images) {
     s->images[name] = nvgCreateImage(s->vg, file, 1);
