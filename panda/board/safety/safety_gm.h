@@ -119,8 +119,8 @@ static int gm_rx_hook(CANPacket_t *to_push) {
     generic_rx_checks(addr == MSG_TX_LKA);
   }
   return valid;
-/////////////////½¶·¯´Â 189¿¡ ´ëÇØ Á¶»çÇÏ°íÀÖÀ¸³ª ±âÁ¸ »ç¿ëÇÏ´ø ÆÇ´ÙÆß¿¡¼± 0x189(393) ÀÌ ¸®Á¨ À¸·Î ÁöÁ¤µÇ¾îÀÖÀ½. ±×·¯³ª ±âÁ¸ ¾îÂ÷ÇÇ gm_rx_hook ¿¡¼­ ÆĞµé °Ë»ç ¾ÈÇÔ
-/////////////////ÇâÈÄ¿¡ Â÷Â÷´Ô¿¡°Ô È®ÀÎ ÇÊ¿ä
+/////////////////ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ 189ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï°ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ï´ï¿½ ï¿½Ç´ï¿½ï¿½ß¿ï¿½ï¿½ï¿½ 0x189(393) ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ç¾ï¿½ï¿½ï¿½ï¿½ï¿½. ï¿½×·ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ gm_rx_hook ï¿½ï¿½ï¿½ï¿½ ï¿½Ğµï¿½ ï¿½Ë»ï¿½ ï¿½ï¿½ï¿½ï¿½
+/////////////////ï¿½ï¿½ï¿½Ä¿ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ô¿ï¿½ï¿½ï¿½ È®ï¿½ï¿½ ï¿½Ê¿ï¿½
     // exit controls on regen paddle
 //    if (addr == 189) {
 //      bool regen = GET_BYTE(to_push, 0) & 0x20U;
@@ -147,7 +147,9 @@ static int gm_tx_hook(CANPacket_t *to_send) {
   }
 
   // disallow actuator commands if gas or brake (with vehicle moving) are pressed
+  // ê°€ìŠ¤ ë˜ëŠ” ë¸Œë ˆì´í¬(ì°¨ëŸ‰ ì´ë™ ì‹œ)ë¥¼ ëˆ„ë¥´ë©´ ì•¡ì¸„ì—ì´í„° ëª…ë ¹ì„ í—ˆìš©í•˜ì§€ ì•ŠìŠµë‹ˆë‹¤.
   // and the the latching controls_allowed flag is True
+  // ë¸Œë ˆì´í¬ë¥¼ ë°Ÿì„ë•Œ ì½¤ë§ˆí˜ë‹¬ì˜ ì—‘ì…€ ì‹ í˜¸ë„ ë™ì¼í•˜ê²Œ ë³´ë‚´ì§„ë‹¤.
   int pedal_pressed = brake_pressed_prev && vehicle_moving;
   bool unsafe_allow_gas = unsafe_mode & UNSAFE_DISABLE_DISENGAGE_ON_GAS;
   if (!unsafe_allow_gas) {
