@@ -227,21 +227,26 @@ class CarInterface(CarInterfaceBase):
 
       # Added by jc01rho inspired by JangPoo
     if self.CS.main_on and self.CS.enable_lkas and not self.CS.adaptive_Cruise and ret.cruiseState.enabled and ret.gearShifter == GearShifter.drive and ret.vEgo > 2.4 and not ret.brakePressed:
+      print('STEP 1 ================================================ ')
       if ret.cruiseState.available and not ret.seatbeltUnlatched and not ret.espDisabled and self.flag_pcmEnable_able:
-
+        print('STEP 2 ================================================ ')
         if self.flag_pcmEnable_initialSet == False:
           self.initial_pcmEnable_counter = self.initial_pcmEnable_counter + 1
+          print('STEP 3 ================================================ ')
           if self.initial_pcmEnable_counter > 750:
             # events.add(EventName.pcmEnable)
             # self.flag_pcmEnable_initialSet = True
             self.flag_pcmEnable_able = False
             self.initial_pcmEnable_counter = 0
+            print('STEP 4 ================================================ ')
         else:
+          print('STEP 5 ================================================ ')
           self.flag_pcmEnable_able = False
           events.add(EventName.buttonEnable)
           # self.flag_pcmEnable_initialSet = True
           # self.initial_pcmEnable_counter = 0
     else:
+      print('STEP 6 ================================================ ')
       self.flag_pcmEnable_able = True
       ###
     ret.events = events.to_msg()
