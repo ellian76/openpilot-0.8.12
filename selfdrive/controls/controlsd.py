@@ -914,7 +914,6 @@ class Controls:
     controlsState.steerActuatorDelay = ntune_common_get('steerActuatorDelay')
 
     # SCC
-    controlsState.adaptiveCruise = ntune_scc_get('adaptiveCruise')
     controlsState.distanceGap = ntune_scc_get('distanceGap')
     controlsState.sccGasFactor = ntune_scc_get('sccGasFactor')
     controlsState.sccBrakeFactor = ntune_scc_get('sccBrakeFactor')
