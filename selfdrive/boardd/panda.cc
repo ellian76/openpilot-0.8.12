@@ -76,6 +76,7 @@ Panda::Panda(std::string serial, uint32_t bus_offset) : bus_offset(bus_offset) {
 
   hw_type = get_hw_type();
   is_pigeon =
+    (hw_type == cereal::PandaState::PandaType::WHITE_PANDA) ||
     (hw_type == cereal::PandaState::PandaType::GREY_PANDA) ||
     (hw_type == cereal::PandaState::PandaType::BLACK_PANDA) ||
     (hw_type == cereal::PandaState::PandaType::UNO) ||
